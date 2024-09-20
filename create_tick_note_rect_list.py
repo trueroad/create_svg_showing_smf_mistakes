@@ -250,11 +250,15 @@ def main() -> None:
         print('#size\twidth\theight', file=f)
         print(f'size\t{width}\t{height}', file=f)
 
+        note_dict: dict[tuple[int, int], rect_container] = {}
+
         tick_dict: dict[int, rect_container] = {}
         rect: rect_container
 
         head_width: list[float] = []
         head_height: list[float] = []
+
+        noteno_dict: dict[int, set[int]] = {}
 
         print('#note\ttick\tnoteno\tleft\ttop\tright\tbottom', file=f)
         nc: note_container
@@ -264,10 +268,17 @@ def main() -> None:
                   f'{rect.left}\t{rect.top}\t{rect.right}\t{rect.bottom}',
                   file=f)
 
+            note_dict[(nc.tick, nc.noteno)] = rect
             tick_dict[nc.tick] = merge_rect(tick_dict.get(nc.tick), rect)
 
             head_width.append(rect.right - rect.left)
             head_height.append(rect.bottom - rect.top)
+
+            if noteno_dict.get(nc.noteno) is None:
+                noteno_dict[nc.noteno] = set([nc.tick])
+            tick_set: set[int] = noteno_dict[nc.noteno]
+            tick_set.add(nc.tick)
+            noteno_dict[nc.noteno] = tick_set
 
         tick_sorted = sorted(tick_dict.items())
         tick_dict = dict((k, v) for k, v in tick_sorted)
@@ -280,6 +291,7 @@ def main() -> None:
         row: int = 0
         right_before: Optional[float] = None
 
+        tick_row_dict: dict[int, int] = {}
         row_dict: dict[int, rect_container] = {}
 
         print('#tick\ttick\tleft\ttop\tright\tbottom\trow', file=f)
@@ -294,11 +306,29 @@ def main() -> None:
                   f'\t{row}',
                   file=f)
 
+            tick_row_dict[tick] = row
             row_dict[row] = merge_rect(row_dict.get(row), rect)
 
         print('#row\trow\tleft\ttop\tright\tbottom', file=f)
         for row, rect in row_dict.items():
             print(f'row\t{row}\t'
+                  f'{rect.left}\t{rect.top}\t{rect.right}\t{rect.bottom}',
+                  file=f)
+
+        noteno_row_dict: dict[tuple[int, int], rect_container] = {}
+
+        noteno: int
+        for noteno, tick_set in noteno_dict.items():
+            for tick in tick_set:
+                row = tick_row_dict[tick]
+                rect = note_dict[(tick, noteno)]
+                noteno_row_dict[(noteno, row)] = \
+                    merge_rect(noteno_row_dict.get((noteno, row)), rect)
+
+        noteno_row: tuple[int, int]
+        print('#noteno\tnoteno\trow\tleft\ttop\tright\tbottom', file=f)
+        for noteno_row, rect in noteno_row_dict.items():
+            print(f'noteno\t{noteno_row[0]}\t{noteno_row[1]}\t'
                   f'{rect.left}\t{rect.top}\t{rect.right}\t{rect.bottom}',
                   file=f)
 
