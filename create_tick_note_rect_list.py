@@ -35,6 +35,7 @@ SUCH DAMAGE.
 
 from dataclasses import dataclass
 import os
+import statistics
 import sys
 from typing import Any, Final, Optional, TextIO, Union
 
@@ -252,6 +253,9 @@ def main() -> None:
         tick_dict: dict[int, rect_container] = {}
         rect: rect_container
 
+        head_width: list[float] = []
+        head_height: list[float] = []
+
         print('#note\ttick\tnoteno\tleft\ttop\tright\tbottom', file=f)
         nc: note_container
         for nc in lt.notes:
@@ -262,8 +266,16 @@ def main() -> None:
 
             tick_dict[nc.tick] = merge_rect(tick_dict.get(nc.tick), rect)
 
+            head_width.append(rect.right - rect.left)
+            head_height.append(rect.bottom - rect.top)
+
         tick_sorted = sorted(tick_dict.items())
         tick_dict = dict((k, v) for k, v in tick_sorted)
+
+        print('#head\twidth\theight\nhead\t'
+              f'{statistics.median(head_width)}\t'
+              f'{statistics.median(head_height)}',
+              file=f)
 
         row: int = 0
         right_before: Optional[float] = None
