@@ -235,31 +235,42 @@ def main() -> None:
     notes_filename: str = sys.argv[3]
     list_filename: str = sys.argv[4]
 
+    # SMF の TPQN
     tpqn: int = get_tpqn(smf_filename)
 
+    # リンク情報と音楽情報一覧をロード
     lt: link_text = link_text(tpqn)
     lt.load_link(link_filename)
     lt.load_notes(notes_filename)
 
+    # SVG の幅・高さ
     width: float
     height: float
     width, height = lt.calc_size()
 
+    # リストを出力する
     f: TextIO
     with open(list_filename, 'w') as f:
-        print('#size\twidth\theight', file=f)
-        print(f'size\t{width}\t{height}', file=f)
+        print('#size\twidth\theight\n'
+              f'size\t{width}\t{height}', file=f)
 
+        # 音符辞書、key: (tick, noteno), value: rect
         note_dict: dict[tuple[int, int], rect_container] = {}
 
+        # tick 辞書、key: tick, value: rect
         tick_dict: dict[int, rect_container] = {}
-        rect: rect_container
 
+        # 符頭の幅・高さのリスト
         head_width: list[float] = []
         head_height: list[float] = []
 
+        # ノート番号 tick 辞書、key: noteno, value: set[tick]
         noteno_dict: dict[int, set[int]] = {}
 
+        rect: rect_container
+        tick_set: set[int]
+
+        # 音符ループ
         print('#note\ttick\tnoteno\tleft\ttop\tright\tbottom', file=f)
         nc: note_container
         for nc in lt.notes:
@@ -276,29 +287,39 @@ def main() -> None:
 
             if noteno_dict.get(nc.noteno) is None:
                 noteno_dict[nc.noteno] = set([nc.tick])
-            tick_set: set[int] = noteno_dict[nc.noteno]
+            tick_set = noteno_dict[nc.noteno]
             tick_set.add(nc.tick)
             noteno_dict[nc.noteno] = tick_set
 
+        # tick 辞書をソートする
         tick_sorted = sorted(tick_dict.items())
         tick_dict = dict((k, v) for k, v in tick_sorted)
 
+        # 符頭の幅・高さ
         print('#head\twidth\theight\nhead\t'
               f'{statistics.median(head_width)}\t'
               f'{statistics.median(head_height)}',
               file=f)
 
+        # 行番号
         row: int = 0
+        # 1 つ前の tick の右端座標
         right_before: Optional[float] = None
 
+        # tick 行辞書、key: tick, value: row
         tick_row_dict: dict[int, int] = {}
+        # 行辞書、key: row, value rect
         row_dict: dict[int, rect_container] = {}
 
+        # tick ループ
         print('#tick\ttick\tleft\ttop\tright\tbottom\trow', file=f)
         tick: int
         for tick, rect in tick_dict.items():
             if right_before is not None and right_before > rect.left:
+                # 1 つ前の右端座標より左端座標が左にある、
+                # つまり改行があったので行番号をインクリメント
                 row += 1
+            # 次のループのために 1 つ前の右端座標を保存
             right_before = rect.right
 
             print(f'tick\t{tick}\t'
@@ -309,14 +330,17 @@ def main() -> None:
             tick_row_dict[tick] = row
             row_dict[row] = merge_rect(row_dict.get(row), rect)
 
+        # 行ループ
         print('#row\trow\tleft\ttop\tright\tbottom', file=f)
         for row, rect in row_dict.items():
             print(f'row\t{row}\t'
                   f'{rect.left}\t{rect.top}\t{rect.right}\t{rect.bottom}',
                   file=f)
 
+        # ノート番号・行辞書、key: (noteno, row), value: rect
         noteno_row_dict: dict[tuple[int, int], rect_container] = {}
 
+        # ノート番号 tick ループ
         noteno: int
         for noteno, tick_set in noteno_dict.items():
             for tick in tick_set:
@@ -325,6 +349,7 @@ def main() -> None:
                 noteno_row_dict[(noteno, row)] = \
                     merge_rect(noteno_row_dict.get((noteno, row)), rect)
 
+        # ノート番号・行ループ
         noteno_row: tuple[int, int]
         print('#noteno\tnoteno\trow\tleft\ttop\tright\tbottom', file=f)
         for noteno_row, rect in noteno_row_dict.items():
