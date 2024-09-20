@@ -268,6 +268,8 @@ def main() -> None:
         row: int = 0
         right_before: Optional[float] = None
 
+        row_dict: dict[int, rect_container] = {}
+
         print('#tick\ttick\tleft\ttop\tright\tbottom\trow', file=f)
         tick: int
         for tick, rect in tick_dict.items():
@@ -278,6 +280,14 @@ def main() -> None:
             print(f'tick\t{tick}\t'
                   f'{rect.left}\t{rect.top}\t{rect.right}\t{rect.bottom}'
                   f'\t{row}',
+                  file=f)
+
+            row_dict[row] = merge_rect(row_dict.get(row), rect)
+
+        print('#row\trow\tleft\ttop\tright\tbottom', file=f)
+        for row, rect in row_dict.items():
+            print(f'row\t{row}\t'
+                  f'{rect.left}\t{rect.top}\t{rect.right}\t{rect.bottom}',
                   file=f)
 
 
