@@ -71,6 +71,7 @@ class tick_note_rect:
         self.note_dict: dict[tick_noteno_container, rect_container] = {}
         self.tick_rect_dict: dict[int, rect_container] = {}
         self.tick_row_dict: dict[int, int] = {}
+        self.row_dict: dict[int, rect_container] = {}
         self.svg_width: float
         self.svg_height: float
         self.head_width: float
@@ -107,6 +108,15 @@ class tick_note_rect:
                         row: int = int(items[6])
                         self.tick_rect_dict[tick] = rect
                         self.tick_row_dict[tick] = row
+                elif len(items) == 6:
+                    if items[0] == 'row':
+                        row = int(items[1])
+                        rect = rect_container(
+                            left=float(items[2]),
+                            top=float(items[3]),
+                            right=float(items[4]),
+                            bottom=float(items[5]))
+                        self.row_dict[row] = rect
                 elif len(items) == 3:
                     if items[0] == 'size':
                         self.svg_width = float(items[1])
