@@ -6,6 +6,6 @@ __pycache__/
 *.pdf
 *.svg
 *.mid
-*.annot.cropped.link.txt
+*.layout.cropped.link.txt
 *.event-unnamed-staff.notes
 *.list.txt

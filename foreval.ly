@@ -1,5 +1,6 @@
 \version "2.24.3"
 
+\include "articulate.ly"
 \pointAndClickOff
 
 upper = \relative
@@ -47,14 +48,20 @@ lower = \relative
   |
 }
 
-\score
-{
+all_staff = {
   \new PianoStaff
   <<
     \new Staff = "upper" \upper
     \new Staff = "lower" \lower
   >>
-  \layout {}
+}
+
+\score
+{
+  \articulate
+  <<
+    \all_staff
+  >>
   \midi
   {
     % MIDI チャンネルをボイスごとに割り当てる
@@ -73,6 +80,18 @@ lower = \relative
     {
       \Voice
       \consists "Staff_performer"
+    }
+  }
+}
+\score
+{
+  \all_staff
+  \layout
+  {
+    \context
+    {
+      \Score
+      proportionalNotationDuration = #(ly:make-moment 1/8)
     }
   }
 }

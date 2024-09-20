@@ -1,8 +1,3 @@
-\version "2.24.3"
-
-%%% INCLUDE %%%
-\pointAndClickOn
-
 upper = \relative
 {
   \clef treble
@@ -22,13 +17,10 @@ lower = \relative
   <c e g>4-. <c e g>-- <c e g> <c e g> |
 }
 
-\score
-{
+all_staff = {
   \new PianoStaff
   <<
     \new Staff = "upper" \upper
     \new Staff = "lower" \lower
   >>
-  \layout {}
-  % \midi {}
 }
