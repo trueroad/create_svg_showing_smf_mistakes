@@ -196,6 +196,32 @@ def get_tpqn(filename: Union[str, bytes, os.PathLike[Any]]) -> int:
     return tpqn
 
 
+def merge_rect(rect1: Optional[rect_container],
+               rect2: rect_container) -> rect_container:
+    """Merge rect."""
+    if rect1 is None:
+        return rect2
+
+    left: float = rect1.left
+    top: float = rect1.top
+    right: float = rect1.right
+    bottom: float = rect1.bottom
+
+    if left > rect2.left:
+        left = rect2.left
+    if top > rect2.top:
+        top = rect2.top
+    if right < rect2.right:
+        right = rect2.right
+    if bottom < rect2.bottom:
+        bottom = rect2.bottom
+
+    return rect_container(left=left,
+                          top=top,
+                          right=right,
+                          bottom=bottom)
+
+
 def main() -> None:
     """Do main."""
     if len(sys.argv) != 5:
@@ -223,11 +249,26 @@ def main() -> None:
         print('#size\twidth\theight', file=f)
         print(f'size\t{width}\t{height}', file=f)
 
+        tick_dict: dict[int, rect_container] = {}
+        rect: rect_container
+
         print('#note\ttick\tnoteno\tleft\ttop\tright\tbottom', file=f)
         nc: note_container
         for nc in lt.notes:
-            rect: rect_container = lt.conv_rect(lt.links[nc.point_and_click])
+            rect = lt.conv_rect(lt.links[nc.point_and_click])
             print(f'note\t{nc.tick}\t{nc.noteno}\t'
+                  f'{rect.left}\t{rect.top}\t{rect.right}\t{rect.bottom}',
+                  file=f)
+
+            tick_dict[nc.tick] = merge_rect(tick_dict.get(nc.tick), rect)
+
+        tick_sorted = sorted(tick_dict.items())
+        tick_dict = dict((k, v) for k, v in tick_sorted)
+
+        print('#tick\ttick\tleft\ttop\tright\tbottom', file=f)
+        tick: int
+        for tick, rect in tick_dict.items():
+            print(f'tick\t{tick}\t'
                   f'{rect.left}\t{rect.top}\t{rect.right}\t{rect.bottom}',
                   file=f)
 
