@@ -69,6 +69,8 @@ class tick_note_rect:
     def __init__(self) -> None:
         """__init__."""
         self.note_dict: dict[tick_noteno_container, rect_container] = {}
+        self.tick_rect_dict: dict[int, rect_container] = {}
+        self.tick_row_dict: dict[int, int] = {}
         self.svg_width: float
         self.svg_height: float
 
@@ -82,16 +84,27 @@ class tick_note_rect:
                 if line.startswith('#'):
                     continue
                 items: list[str] = line.split()
-                if len(items) == 7 and items[0] == 'note':
-                    tn: tick_noteno_container = tick_noteno_container(
-                        tick=int(items[1]),
-                        noteno=int(items[2]))
-                    rect: rect_container = rect_container(
-                        left=float(items[3]),
-                        top=float(items[4]),
-                        right=float(items[5]),
-                        bottom=float(items[6]))
-                    self.note_dict[tn] = rect
+                if len(items) == 7:
+                    if items[0] == 'note':
+                        tn: tick_noteno_container = tick_noteno_container(
+                            tick=int(items[1]),
+                            noteno=int(items[2]))
+                        rect: rect_container = rect_container(
+                            left=float(items[3]),
+                            top=float(items[4]),
+                            right=float(items[5]),
+                            bottom=float(items[6]))
+                        self.note_dict[tn] = rect
+                    elif items[0] == 'tick':
+                        tick: int = int(items[1])
+                        rect = rect_container(
+                            left=float(items[2]),
+                            top=float(items[3]),
+                            right=float(items[4]),
+                            bottom=float(items[5]))
+                        row: int = int(items[6])
+                        self.tick_rect_dict[tick] = rect
+                        self.tick_row_dict[tick] = row
                 if len(items) == 3 and items[0] == 'size':
                     self.svg_width = float(items[1])
                     self.svg_height = float(items[2])
