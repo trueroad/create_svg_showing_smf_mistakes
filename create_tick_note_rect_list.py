@@ -265,25 +265,20 @@ def main() -> None:
         tick_sorted = sorted(tick_dict.items())
         tick_dict = dict((k, v) for k, v in tick_sorted)
 
-        row_dict: dict[int, int] = {}
         row: int = 0
         right_before: Optional[float] = None
 
-        print('#tick\ttick\tleft\ttop\tright\tbottom', file=f)
+        print('#tick\ttick\tleft\ttop\tright\tbottom\trow', file=f)
         tick: int
         for tick, rect in tick_dict.items():
-            print(f'tick\t{tick}\t'
-                  f'{rect.left}\t{rect.top}\t{rect.right}\t{rect.bottom}',
-                  file=f)
-
             if right_before is not None and right_before > rect.left:
                 row += 1
-            row_dict[tick] = row
             right_before = rect.right
 
-        print('#row\ttick\trow', file=f)
-        for tick, row in row_dict.items():
-            print(f'row\t{tick}\t{row}', file=f)
+            print(f'tick\t{tick}\t'
+                  f'{rect.left}\t{rect.top}\t{rect.right}\t{rect.bottom}'
+                  f'\t{row}',
+                  file=f)
 
 
 if __name__ == '__main__':
