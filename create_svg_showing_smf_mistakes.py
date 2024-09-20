@@ -73,6 +73,8 @@ class tick_note_rect:
         self.tick_row_dict: dict[int, int] = {}
         self.svg_width: float
         self.svg_height: float
+        self.head_width: float
+        self.head_height: float
 
     def load_text(self, filename: Union[str, bytes, os.PathLike[Any]]
                   ) -> None:
@@ -105,9 +107,13 @@ class tick_note_rect:
                         row: int = int(items[6])
                         self.tick_rect_dict[tick] = rect
                         self.tick_row_dict[tick] = row
-                if len(items) == 3 and items[0] == 'size':
-                    self.svg_width = float(items[1])
-                    self.svg_height = float(items[2])
+                elif len(items) == 3:
+                    if items[0] == 'size':
+                        self.svg_width = float(items[1])
+                        self.svg_height = float(items[2])
+                    elif items[0] == 'head':
+                        self.head_width = float(items[1])
+                        self.head_height = float(items[2])
         # print(f'width = {self.svg_width}, height = {self.svg_height}')
         # pprint.pprint(self.note_dict)
 
