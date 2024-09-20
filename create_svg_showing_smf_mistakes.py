@@ -63,6 +63,14 @@ class tick_noteno_container:
     noteno: int
 
 
+@dataclass(frozen=True)
+class noteno_row_container:
+    """Noteno row container class."""
+
+    noteno: int
+    row: int
+
+
 class tick_note_rect:
     """Tick note rect class."""
 
@@ -72,6 +80,7 @@ class tick_note_rect:
         self.tick_rect_dict: dict[int, rect_container] = {}
         self.tick_row_dict: dict[int, int] = {}
         self.row_dict: dict[int, rect_container] = {}
+        self.noteno_dict: dict[noteno_row_container, rect_container] = {}
         self.svg_width: float
         self.svg_height: float
         self.head_width: float
@@ -108,6 +117,16 @@ class tick_note_rect:
                         row: int = int(items[6])
                         self.tick_rect_dict[tick] = rect
                         self.tick_row_dict[tick] = row
+                    elif items[0] == 'noteno':
+                        nr: noteno_row_container = noteno_row_container(
+                            noteno=int(items[1]),
+                            row=int(items[2]))
+                        rect = rect_container(
+                            left=float(items[3]),
+                            top=float(items[4]),
+                            right=float(items[5]),
+                            bottom=float(items[6]))
+                        self.noteno_dict[nr] = rect
                 elif len(items) == 6:
                     if items[0] == 'row':
                         row = int(items[1])
