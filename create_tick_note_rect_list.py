@@ -261,8 +261,8 @@ def main() -> None:
         tick_dict: dict[int, rect_container] = {}
 
         # 符頭の幅・高さのリスト
-        head_width: list[float] = []
-        head_height: list[float] = []
+        head_width_list: list[float] = []
+        head_height_list: list[float] = []
 
         # ノート番号 tick 辞書、key: noteno, value: set[tick]
         noteno_dict: dict[int, set[int]] = {}
@@ -282,8 +282,8 @@ def main() -> None:
             note_dict[(nc.tick, nc.noteno)] = rect
             tick_dict[nc.tick] = merge_rect(tick_dict.get(nc.tick), rect)
 
-            head_width.append(rect.right - rect.left)
-            head_height.append(rect.bottom - rect.top)
+            head_width_list.append(rect.right - rect.left)
+            head_height_list.append(rect.bottom - rect.top)
 
             if noteno_dict.get(nc.noteno) is None:
                 noteno_dict[nc.noteno] = set([nc.tick])
@@ -296,10 +296,10 @@ def main() -> None:
         tick_dict = dict((k, v) for k, v in tick_sorted)
 
         # 符頭の幅・高さ
+        head_width: float = statistics.median(head_width_list)
+        head_height: float = statistics.median(head_height_list)
         print('#head\twidth\theight\nhead\t'
-              f'{statistics.median(head_width)}\t'
-              f'{statistics.median(head_height)}',
-              file=f)
+              f'{head_width}\t{head_height}', file=f)
 
         # 行番号
         row: int = 0
