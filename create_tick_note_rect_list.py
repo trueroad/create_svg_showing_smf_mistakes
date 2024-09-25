@@ -353,7 +353,8 @@ def main() -> None:
         noteno_row: tuple[int, int]
         print('#noteno\tnoteno\trow\tleft\ttop\tright\tbottom', file=f)
         for noteno_row, rect in noteno_row_dict.items():
-            print(f'noteno\t{noteno_row[0]}\t{noteno_row[1]}\t'
+            noteno, row = noteno_row
+            print(f'noteno\t{noteno}\t{row}\t'
                   f'{rect.left}\t{rect.top}\t{rect.right}\t{rect.bottom}',
                   file=f)
 
