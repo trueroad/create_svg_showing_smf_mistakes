@@ -56,6 +56,14 @@ class rect_container:
 
 
 @dataclass(frozen=True)
+class tb_container:
+    """Top and bottom container class."""
+
+    top: float
+    bottom: float
+
+
+@dataclass(frozen=True)
 class tick_noteno_container:
     """Tick noteno container class."""
 
@@ -81,6 +89,7 @@ class tick_note_rect:
         self.tick_row_dict: dict[int, int] = {}
         self.row_dict: dict[int, rect_container] = {}
         self.noteno_dict: dict[noteno_row_container, rect_container] = {}
+        self.extra_y_dict: dict[noteno_row_container, tb_container] = {}
         self.svg_width: float
         self.svg_height: float
         self.head_width: float
@@ -127,6 +136,15 @@ class tick_note_rect:
                             right=float(items[5]),
                             bottom=float(items[6]))
                         self.noteno_dict[nr] = rect
+                elif len(items) == 5:
+                    if items[0] == 'extra-y':
+                        nr = noteno_row_container(
+                            noteno=int(items[2]),
+                            row=int(items[1]))
+                        tb: tb_container = tb_container(
+                            top=float(items[3]),
+                            bottom=float(items[4]))
+                        self.extra_y_dict[nr] = tb
                 elif len(items) == 6:
                     if items[0] == 'row':
                         row = int(items[1])
