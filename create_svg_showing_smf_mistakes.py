@@ -34,6 +34,7 @@ SUCH DAMAGE.
 """
 
 from dataclasses import dataclass
+import math
 import os
 # import pprint
 import sys
@@ -77,6 +78,17 @@ class noteno_row_container:
 
     noteno: int
     row: int
+
+
+@dataclass(frozen=True)
+class extra_noteno_tick_container:
+    """Extra noteno tick container class."""
+
+    noteno: set[int]
+    abs_tick_before_extra: int
+    abs_tick_after_extra: int
+    b_before_model_first: bool
+    b_after_model_last: bool
 
 
 class tick_note_rect:
@@ -176,6 +188,19 @@ def draw_cross(context: cairo.Context, rect: rect_container) -> None:
     context.stroke()
 
 
+def draw_ellipse(context: cairo.Context, rect: rect_container) -> None:
+    """Draw ellipse."""
+    context.save()
+    context.set_source_rgba(1, 0, 0, 0.5)
+    context.translate((rect.left + rect.right) / 2,
+                      (rect.top + rect.bottom) / 2)
+    context.scale((rect.right - rect.left) / 2,
+                  (rect.bottom - rect.top) / 2)
+    context.arc(0.0, 0.0, 1.0, 0.0, 2 * math.pi)
+    context.fill()
+    context.restore()
+
+
 def main() -> None:
     """Do main."""
     if len(sys.argv) != 5:
@@ -208,6 +233,73 @@ def main() -> None:
                 noteno=nc.note_on.note_event.note)]
             # pprint.pprint(rect)
             draw_cross(context, rect)
+
+        entc_list: list[extra_noteno_tick_container] = []
+        foreval_noteno: set[int] = set()
+        abs_tick_before_extra_before: int = -1
+        abs_tick_after_extra_before: int = -1
+        b_before_model_first_before: bool = False
+        b_after_model_last_before: bool = False
+        for enc in sd.extra_note:
+            if ((abs_tick_before_extra_before ==
+                 enc.abs_tick_before_extra
+                 and
+                 abs_tick_after_extra_before ==
+                 enc.abs_tick_after_extra
+                 and
+                 b_before_model_first_before ==
+                 enc.b_before_model_first
+                 and
+                 b_after_model_last_before ==
+                 enc.b_after_model_last)):
+                foreval_noteno.add(enc.note.note_on.note_event.note)
+                continue
+
+            if abs_tick_before_extra_before >= 0:
+                entc_list.append(extra_noteno_tick_container(
+                    noteno=foreval_noteno,
+                    abs_tick_before_extra=abs_tick_before_extra_before,
+                    abs_tick_after_extra=abs_tick_after_extra_before,
+                    b_before_model_first=b_before_model_first_before,
+                    b_after_model_last=b_after_model_last_before))
+
+            foreval_noteno = {enc.note.note_on.note_event.note}
+            abs_tick_before_extra_before = enc.abs_tick_before_extra
+            abs_tick_after_extra_before = enc.abs_tick_after_extra
+            b_before_model_first_before = enc.b_before_model_first
+            b_after_model_last_before = enc.b_after_model_last
+
+        if abs_tick_before_extra_before >= 0:
+            entc_list.append(extra_noteno_tick_container(
+                noteno=foreval_noteno,
+                abs_tick_before_extra=abs_tick_before_extra_before,
+                abs_tick_after_extra=abs_tick_after_extra_before,
+                b_before_model_first=b_before_model_first_before,
+                b_after_model_last=b_after_model_last_before))
+
+        for entc in entc_list:
+            row_before: int = tnr.tick_row_dict[entc.abs_tick_before_extra]
+            row_after: int = tnr.tick_row_dict[entc.abs_tick_after_extra]
+
+            left: float = tnr.tick_rect_dict[entc.abs_tick_before_extra].left
+            right: float = tnr.tick_rect_dict[entc.abs_tick_after_extra].right
+            top: float = tnr.extra_y_dict[noteno_row_container(
+                noteno=max(entc.noteno),
+                row=row_before)].top - tnr.head_height
+            bottom: float = tnr.extra_y_dict[noteno_row_container(
+                noteno=min(entc.noteno),
+                row=row_before)].bottom + tnr.head_height
+
+            if row_before != row_after:
+                right = tnr.tick_rect_dict[entc.abs_tick_before_extra].right
+            if entc.b_before_model_first:
+                left -= tnr.head_width
+            if entc.b_after_model_last or row_before != row_after:
+                right += tnr.head_width
+
+            rect = rect_container(
+                left=left, top=top, right=right, bottom=bottom)
+            draw_ellipse(context, rect)
 
 
 if __name__ == '__main__':
