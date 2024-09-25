@@ -39,6 +39,8 @@ import statistics
 import sys
 from typing import Any, Final, Optional, TextIO, Union
 
+from scipy import interpolate  # type: ignore[import-untyped]
+
 # https://gist.github.com/trueroad/52b7c4c98eec5fdf0ff3f62d64ec17bd
 import smf_parse
 
@@ -349,6 +351,13 @@ def main() -> None:
                 noteno_row_dict[(noteno, row)] = \
                     merge_rect(noteno_row_dict.get((noteno, row)), rect)
 
+        # 符頭上側座標リスト辞書、key: row, value: list[top]
+        top_list_dict: dict[int, list[float]] = {}
+        # 符頭下側座標リスト辞書、key: row, value: list[bottom]
+        bottom_list_dict: dict[int, list[float]] = {}
+        # 符頭ノート番号リスト辞書、key: row, value: list[noteno]
+        noteno_list_dict: dict[int, list[int]] = {}
+
         # ノート番号・行ループ
         noteno_row: tuple[int, int]
         print('#noteno\tnoteno\trow\tleft\ttop\tright\tbottom', file=f)
@@ -357,6 +366,43 @@ def main() -> None:
             print(f'noteno\t{noteno}\t{row}\t'
                   f'{rect.left}\t{rect.top}\t{rect.right}\t{rect.bottom}',
                   file=f)
+
+            top_list_dict[row] = top_list_dict.get(row, []) + [rect.top]
+            bottom_list_dict[row] = \
+                bottom_list_dict.get(row, []) + [rect.bottom]
+            noteno_list_dict[row] = \
+                noteno_list_dict.get(row, []) + [noteno]
+
+        # 行ループ 2 回目
+        print('#extra-y\trow\tnoteno\ttop\tbottom', file=f)
+        for row in row_dict.keys():
+            # 行内の符頭上側座標リスト
+            top_list: list[float] = top_list_dict[row]
+            # 行内の符頭下側座標リスト
+            bottom_list: list[float] = bottom_list_dict[row]
+            # 行内の符頭ノート番号リスト
+            noteno_list: list[int] = noteno_list_dict[row]
+
+            # 下側にはみ出る限界を設定
+            if min(noteno_list) > 0:
+                top_list.append(max(top_list) + head_height)
+                bottom_list.append(max(bottom_list) + head_height)
+                noteno_list.append(0)
+            # 上側にはみ出る限界を設定
+            if max(noteno_list) < 127:
+                top_list.append(min(top_list) - head_height)
+                bottom_list.append(min(bottom_list) - head_height)
+                noteno_list.append(127)
+
+            # 補間
+            top_inter = interpolate.interp1d(noteno_list, top_list)
+            bottom_inter = interpolate.interp1d(noteno_list, bottom_list)
+
+            # ノート番号ループ
+            for noteno in range(128):
+                print(f'extra-y\t{row}\t{noteno}\t'
+                      f'{top_inter(noteno)}\t{bottom_inter(noteno)}',
+                      file=f)
 
 
 if __name__ == '__main__':
