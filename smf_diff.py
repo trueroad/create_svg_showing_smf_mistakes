@@ -51,7 +51,7 @@ import smf_sort_poly
 import diff_levenshtein
 
 
-VERSION: Final[str] = "20240925.01"
+VERSION: Final[str] = "20240926.01"
 
 
 class note_for_diff:
@@ -246,6 +246,14 @@ class extra_note_container:
     b_before_model_first: bool
     # モデルの最後の音符より後にあるか
     b_after_model_last: bool
+    # 余計な音符の前の MBT （評価対象側）
+    foreval_mbt_before_extra: Optional[smf_parse.mbt_container]
+    # 余計な音符の後の MBT （評価対象側）
+    foreval_mbt_after_extra: Optional[smf_parse.mbt_container]
+    # 余計な音符の前の絶対 tick （評価対象側）
+    foreval_abs_tick_before_extra: Optional[int]
+    # 余計な音符の後の絶対 tick （評価対象側）
+    foreval_abs_tick_after_extra: Optional[int]
 
 
 class smf_difference:
@@ -724,53 +732,77 @@ class smf_difference:
 
     def __extra_notes(self, i1: int, i2: int, j1: int, j2: int) -> None:
         """余計な音符の処理."""
-        j: int
-        # 余計な音符がある
-        for j in range(j1, j2):
-            b_before_model_first: bool = False
-            b_after_model_last: bool = False
-            mbt_before_extra: smf_parse.mbt_container
-            mbt_after_extra: smf_parse.mbt_container
-            abs_tick_before_extra: int
-            abs_tick_after_extra: int
-            if i1 == 0:
-                # モデル側の最初の音符の前に余計な音符がある
-                b_before_model_first = True
-                if len(self.model_diff) > 0:
-                    # モデル側の最初の音符の MBT を採る
-                    mbt_before_extra = self.model_diff[i1].note.note_on.mbt
-                    abs_tick_before_extra = \
-                        self.model_diff[i1].note.note_on.abs_tick
-                else:
-                    # モデル側に音符が無い
-                    mbt_before_extra = smf_parse.mbt_container(
-                        measure=0, beat=0, tick=0)
-                    abs_tick_before_extra = 0
-            else:
-                # 余計な音符が現れる直前で対応するモデルの音符の MBT
-                mbt_before_extra = self.model_diff[i1 - 1].note.note_on.mbt
+        b_before_model_first: bool = False
+        b_after_model_last: bool = False
+        mbt_before_extra: smf_parse.mbt_container
+        mbt_after_extra: smf_parse.mbt_container
+        abs_tick_before_extra: int
+        abs_tick_after_extra: int
+        if i1 == 0:
+            # モデル側の最初の音符の前に余計な音符がある
+            b_before_model_first = True
+            if len(self.model_diff) > 0:
+                # モデル側の最初の音符の MBT を採る
+                mbt_before_extra = self.model_diff[i1].note.note_on.mbt
                 abs_tick_before_extra = \
-                    self.model_diff[i1 - 1].note.note_on.abs_tick
-            if i2 == len(self.model_diff):
-                # モデル側の最後の音符の後に余計な音符があるか
-                # 最後の音符を置き換える余計な音符がある
-                b_after_model_last = True
-                if i2 > 0:
-                    # モデル側の最後の音符の MBT を採る
-                    mbt_after_extra = self.model_diff[i2 - 1].note.note_on.mbt
-                    abs_tick_after_extra = \
-                        self.model_diff[i2 - 1].note.note_on.abs_tick
-                else:
-                    # モデル側に音符が無い
-                    mbt_after_extra = smf_parse.mbt_container(
-                        measure=0, beat=0, tick=0)
-                    abs_tick_after_extra = 0
+                    self.model_diff[i1].note.note_on.abs_tick
             else:
-                # 余計な音符が現れた直後で対応するモデルの音符の MBT
-                mbt_after_extra = self.model_diff[i2].note.note_on.mbt
+                # モデル側に音符が無い
+                mbt_before_extra = smf_parse.mbt_container(
+                    measure=0, beat=0, tick=0)
+                abs_tick_before_extra = 0
+        else:
+            # 余計な音符が現れる直前で対応するモデルの音符の MBT
+            mbt_before_extra = self.model_diff[i1 - 1].note.note_on.mbt
+            abs_tick_before_extra = \
+                self.model_diff[i1 - 1].note.note_on.abs_tick
+        if i2 == len(self.model_diff):
+            # モデル側の最後の音符の後に余計な音符があるか
+            # 最後の音符を置き換える余計な音符がある
+            b_after_model_last = True
+            if i2 > 0:
+                # モデル側の最後の音符の MBT を採る
+                mbt_after_extra = self.model_diff[i2 - 1].note.note_on.mbt
                 abs_tick_after_extra = \
-                    self.model_diff[i2].note.note_on.abs_tick
+                    self.model_diff[i2 - 1].note.note_on.abs_tick
+            else:
+                # モデル側に音符が無い
+                mbt_after_extra = smf_parse.mbt_container(
+                    measure=0, beat=0, tick=0)
+                abs_tick_after_extra = 0
+        else:
+            # 余計な音符が現れた直後で対応するモデルの音符の MBT
+            mbt_after_extra = self.model_diff[i2].note.note_on.mbt
+            abs_tick_after_extra = \
+                self.model_diff[i2].note.note_on.abs_tick
 
+        mbt_before_extra_foreval: Optional[smf_parse.mbt_container]
+        mbt_after_extra_foreval: Optional[smf_parse.mbt_container]
+        abs_tick_before_extra_foreval: Optional[int]
+        abs_tick_after_extra_foreval: Optional[int]
+        if j1 == 0:
+            # 評価対象側の最初の音符からはじまる
+            foreval_mbt_before_extra = None
+            foreval_abs_tick_before_extra = None
+        else:
+            # 余計な音符が現れる直前で対応する評価対象の音符の MBT
+            foreval_mbt_before_extra = \
+                self.foreval_diff[j1 - 1].note.note_on.mbt
+            foreval_abs_tick_before_extra = \
+                self.foreval_diff[j1 - 1].note.note_on.abs_tick
+        if j2 == len(self.foreval_diff):
+            # 評価対象側の最後の音符まで含む
+            foreval_mbt_after_extra = None
+            foreval_abs_tick_after_extra = None
+        else:
+            # 余計な音符が現れた直後で対応する評価対象の音符の MBT
+            foreval_mbt_after_extra = \
+                self.foreval_diff[j2].note.note_on.mbt
+            foreval_abs_tick_after_extra = \
+                self.foreval_diff[j2].note.note_on.abs_tick
+
+        j: int
+        for j in range(j1, j2):
             self.__print_v('Extra note: ', end='')
             if b_before_model_first:
                 self.__print_v('~ ', end='')
@@ -795,7 +827,11 @@ class smf_difference:
                 abs_tick_before_extra=abs_tick_before_extra,
                 abs_tick_after_extra=abs_tick_after_extra,
                 b_before_model_first=b_before_model_first,
-                b_after_model_last=b_after_model_last))
+                b_after_model_last=b_after_model_last,
+                foreval_mbt_before_extra=foreval_mbt_before_extra,
+                foreval_mbt_after_extra=foreval_mbt_after_extra,
+                foreval_abs_tick_before_extra=foreval_abs_tick_before_extra,
+                foreval_abs_tick_after_extra=foreval_abs_tick_after_extra))
 
     def calc_time_ratio(self) -> float:
         """
