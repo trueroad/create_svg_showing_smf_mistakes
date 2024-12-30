@@ -285,10 +285,10 @@ def main() -> None:
             right: float = tnr.tick_rect_dict[entc.abs_tick_after_extra].right
             top: float = tnr.extra_y_dict[noteno_row_container(
                 noteno=max(entc.noteno),
-                row=row_before)].top - tnr.head_height
+                row=row_before)].top
             bottom: float = tnr.extra_y_dict[noteno_row_container(
                 noteno=min(entc.noteno),
-                row=row_before)].bottom + tnr.head_height
+                row=row_before)].bottom
 
             if row_before != row_after:
                 right = tnr.tick_rect_dict[entc.abs_tick_before_extra].right
