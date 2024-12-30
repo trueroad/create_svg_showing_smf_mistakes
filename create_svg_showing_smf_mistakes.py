@@ -38,7 +38,7 @@ import math
 import os
 # import pprint
 import sys
-from typing import Any, Final, TextIO, Union
+from typing import Any, BinaryIO, Final, TextIO, Union
 
 import cairo
 
@@ -201,46 +201,65 @@ def draw_ellipse(context: cairo.Context, rect: rect_container) -> None:
     context.restore()
 
 
-def main() -> None:
-    """Do main."""
-    if len(sys.argv) != 5:
-        print('Usage: ./create_svg_showing_smf_mistakes.py '
-              '[(in)LIST.TXT (in)MODEL.MID (in)FOREVAL.MID (out)MISTAKES.SVG]')
-        sys.exit(1)
+class mistakes:
+    """Mistakes class."""
 
-    list_filename: Final[str] = sys.argv[1]
-    model_filename: Final[str] = sys.argv[2]
-    foreval_filename: Final[str] = sys.argv[3]
-    svg_filename: Final[str] = sys.argv[4]
+    def __init__(self) -> None:
+        """__init__."""
+        self.tnr: tick_note_rect = tick_note_rect()
+        self.sd: smf_diff.smf_difference = smf_diff.smf_difference()
 
-    tnr: tick_note_rect = tick_note_rect()
-    tnr.load_text(list_filename)
+    def load_text(self, filename: Union[str, bytes, os.PathLike[Any]]
+                  ) -> None:
+        """Load list text."""
+        self.tnr.load_text(filename)
 
-    sd: smf_diff.smf_difference = smf_diff.smf_difference()
-    sd.load_model(model_filename)
-    sd.load_foreval(foreval_filename)
-    sd.diff()
+    def load_model(self, filename: Union[str, bytes, os.PathLike[Any]]
+                   ) -> bool:
+        """Load model SMF."""
+        return self.sd.load_model(filename)
 
-    surface: cairo.SVGSurface
-    with cairo.SVGSurface(svg_filename, tnr.svg_width, tnr.svg_height
-                          ) as surface:
-        context: cairo.Context = cairo.Context(surface)
+    def load_foreval(self, filename: Union[str, bytes, os.PathLike[Any]]
+                     ) -> bool:
+        """Load foreval SMF."""
+        return self.sd.load_foreval(filename)
 
-        for nc in sd.missing_note:
+    def diff(self) -> None:
+        """Do diff."""
+        self.sd.diff()
+
+    def create_svg(self, fobj: Union[str, bytes, BinaryIO]
+                   ) -> None:
+        """Create SVG."""
+        surface: cairo.SVGSurface
+        with cairo.SVGSurface(fobj, self.tnr.svg_width, self.tnr.svg_height
+                              ) as surface:
+            self.draw_all(cairo.Context(surface))
+
+    def draw_all(self, context: cairo.Context) -> None:
+        """Draw all."""
+        self.draw_missing_notes(context)
+        self.draw_extra_notes(context)
+
+    def draw_missing_notes(self, context: cairo.Context) -> None:
+        """Draw missing notes."""
+        for nc in self.sd.missing_note:
             # pprint.pprint(nc)
-            rect: rect_container = tnr.note_dict[tick_noteno_container(
+            rect: rect_container = self.tnr.note_dict[tick_noteno_container(
                 tick=nc.note_on.abs_tick,
                 noteno=nc.note_on.note_event.note)]
             # pprint.pprint(rect)
             draw_cross(context, rect)
 
+    def draw_extra_notes(self, context: cairo.Context) -> None:
+        """Draw extra notes."""
         entc_list: list[extra_noteno_tick_container] = []
         foreval_noteno: set[int] = set()
         abs_tick_before_extra_before: int = -1
         abs_tick_after_extra_before: int = -1
         b_before_model_first_before: bool = False
         b_after_model_last_before: bool = False
-        for enc in sd.extra_note:
+        for enc in self.sd.extra_note:
             if ((abs_tick_before_extra_before ==
                  enc.abs_tick_before_extra
                  and
@@ -278,28 +297,55 @@ def main() -> None:
                 b_after_model_last=b_after_model_last_before))
 
         for entc in entc_list:
-            row_before: int = tnr.tick_row_dict[entc.abs_tick_before_extra]
-            row_after: int = tnr.tick_row_dict[entc.abs_tick_after_extra]
+            row_before: int = \
+                self.tnr.tick_row_dict[entc.abs_tick_before_extra]
+            row_after: int = \
+                self.tnr.tick_row_dict[entc.abs_tick_after_extra]
 
-            left: float = tnr.tick_rect_dict[entc.abs_tick_before_extra].left
-            right: float = tnr.tick_rect_dict[entc.abs_tick_after_extra].right
-            top: float = tnr.extra_y_dict[noteno_row_container(
+            left: float = \
+                self.tnr.tick_rect_dict[entc.abs_tick_before_extra].left
+            right: float = \
+                self.tnr.tick_rect_dict[entc.abs_tick_after_extra].right
+            top: float = self.tnr.extra_y_dict[noteno_row_container(
                 noteno=max(entc.noteno),
                 row=row_before)].top
-            bottom: float = tnr.extra_y_dict[noteno_row_container(
+            bottom: float = self.tnr.extra_y_dict[noteno_row_container(
                 noteno=min(entc.noteno),
                 row=row_before)].bottom
 
             if row_before != row_after:
-                right = tnr.tick_rect_dict[entc.abs_tick_before_extra].right
+                right = \
+                    self.tnr.tick_rect_dict[entc.abs_tick_before_extra].right
             if entc.b_before_model_first:
-                left -= tnr.head_width
+                left -= self.tnr.head_width
             if entc.b_after_model_last or row_before != row_after:
-                right += tnr.head_width
+                right += self.tnr.head_width
 
             rect = rect_container(
                 left=left, top=top, right=right, bottom=bottom)
             draw_ellipse(context, rect)
+
+
+def main() -> None:
+    """Do main."""
+    if len(sys.argv) != 5:
+        print('Usage: ./create_svg_showing_smf_mistakes.py '
+              '[(in)LIST.TXT (in)MODEL.MID (in)FOREVAL.MID (out)MISTAKES.SVG]')
+        sys.exit(1)
+
+    list_filename: Final[str] = sys.argv[1]
+    model_filename: Final[str] = sys.argv[2]
+    foreval_filename: Final[str] = sys.argv[3]
+    svg_filename: Final[str] = sys.argv[4]
+
+    mst: mistakes = mistakes()
+
+    mst.load_text(list_filename)
+    mst.load_model(model_filename)
+    mst.load_foreval(foreval_filename)
+    mst.diff()
+
+    mst.create_svg(svg_filename)
 
 
 if __name__ == '__main__':
