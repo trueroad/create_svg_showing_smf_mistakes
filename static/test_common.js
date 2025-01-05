@@ -60,9 +60,9 @@ function clickClearButton() {
   console.log("clickClearButton");
 
   // 何も描画しないSVGをblobに用意する
-  const blob = new Blob([`<svg xmlns="http://www.w3.org/2000/svg"
-     width="1" height="1" viewBox="0 0 1 1" />`
-                        ],
+  const spacer_svg = `<svg xmlns="http://www.w3.org/2000/svg"
+     width="1" height="1" viewBox="0 0 1 1" />`;
+  const blob = new Blob([spacer_svg],
                         {type: "image/svg+xml"});
   // blobからURLを作る
   mistakesImg.src = URL.createObjectURL(blob);
