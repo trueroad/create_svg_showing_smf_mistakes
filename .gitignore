@@ -5,6 +5,7 @@
 __pycache__/
 models/
 static/models/
+post.bin
 *.pdf
 *.svg
 *.mid

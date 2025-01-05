@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Test REST API</title>
+  </head>
+  <body>
+    <h1>Test REST API</h1>
+    <p>
+      Test REST API<br>
+      Copyright (C) 2025 Masamichi Hosoda<br>
+      License: BSD-2-Clause<br>
+      <a href="https://github.com/trueroad/create_svg_showing_smf_mistakes">
+        https://github.com/trueroad/create_svg_showing_smf_mistakes
+      </a>
+    </p>
+
+    <hr>
+
+    <p>
+      <form method="POST" action="/midi/diffsvg" enctype="multipart/form-data">
+        foreval: <input type="file" name="foreval"
+                        accept=".mid,.midi,audio/midi,audio/x-midi"><br/>
+        name: <input type="text" name="name" value="test"><br />
+        <button>Diff</button>
+      </form>
+    <p>
+  </body>
+</html>
