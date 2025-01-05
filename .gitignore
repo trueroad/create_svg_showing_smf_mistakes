@@ -12,3 +12,4 @@ post.bin
 *.layout.cropped.link.txt
 *.event-unnamed-staff.notes
 *.list.txt
+!static/spacer.svg
