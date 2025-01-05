@@ -1,4 +1,4 @@
-MODEL_DIRS := test
+MODEL_DIRS := test twinkle
 
 include ../mk/common-dirs.mk
 include ../mk/common-tools.mk
