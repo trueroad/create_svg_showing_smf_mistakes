@@ -13,6 +13,10 @@ import {GapDetector} from "./tr-MidiJS/GapDetector.js";
 import {SmfEncoder} from "./tr-MidiJS/SmfEncoder.js";
 import {getISOStringTZ} from "./getISOStringTZ.js";
 
+import {
+  mistakesImg, forevalName, postResult, postUrl, revokeMistakeURL
+} from "./test_common.js";
+
 /**
  * BleMidiDevice class instance.
  * @type {module:BleMidiDevice.BleMidiDevice}
@@ -47,12 +51,6 @@ const stopButton = document.getElementById("stopButton");
 
 // Status span
 const statusSpan = document.getElementById("statusSpan");
-
-// Input text
-const postUrl = document.getElementById("postUrl");
-
-//Result textarea
-const postResult = document.getElementById("postResult");
 
 //
 // Handler
@@ -156,13 +154,34 @@ async function _post_smf() {
   // Builds a form from the built SMF.
   const formData = new FormData();
   formData.append("foreval", blob, "foreval.mid");
+  formData.append("name", forevalName.value);
 
   try {
-    const resp = await fetch(postUrl.value, {method: 'POST', body: formData});
+    const resp = await fetch(postUrl, {method: 'POST', body: formData});
     if (resp.status !== 200) {
       postResult.value = resp.status + " " + resp.statusText;
     } else {
-      postResult.value = await resp.text();
+      const resp_form = await resp.formData();
+
+      // フォームからSVGとJSONを取り出して処理
+      console.log(resp_form);
+      const diffsvg = resp_form.get("diffsvg");
+      const jsondata = resp_form.get("json");
+      console.log(diffsvg);
+      console.log(jsondata);
+
+      // SVGのblobからURLを作る
+      mistakesImg.src = URL.createObjectURL(diffsvg);
+      // loadされたらURLを解放する関数を登録
+      mistakesImg.addEventListener("load", revokeMistakeURL);
+
+      // JSONのblobをパースして結果表示する
+      jsondata.text()
+        .then((text) => {
+          const j = JSON.parse(text)
+          console.log(j);
+          postResult.textContent = JSON.stringify(j);
+        })
     }
   } catch (err) {
     postResult.value = err;
@@ -239,7 +258,6 @@ async function selectStart() {
 
   bleMidiDevice.bleMidiPacket.startWaitUntilStableTimeout();
 
-  postUrl.setAttribute("disabled", true);
   stopButton.removeAttribute("disabled");
   statusSpan.innerText = "Recording...";
 }
@@ -259,7 +277,6 @@ async function stop() {
   }
 
   stopButton.setAttribute("disabled", true);
-  postUrl.removeAttribute("disabled");
   statusSpan.innerText = "Stopped.";
 }
 

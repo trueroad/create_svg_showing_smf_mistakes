@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Test BLE-MIDI</title>
+    <script type="module" src="test_ble.js">
+    </script>
+  </head>
+  <style>
+    .relative
+    {
+        position: relative;
+    }
+    .absolute
+    {
+        position: absolute;
+    }
+  </style>
+  <body>
+    <h1>Test BLE-MIDI</h1>
+    <p>
+      Test BLE-MIDI<br>
+      Copyright (C) 2025 Masamichi Hosoda<br>
+      License: BSD-2-Clause<br>
+      <a href="https://github.com/trueroad/create_svg_showing_smf_mistakes">
+        https://github.com/trueroad/create_svg_showing_smf_mistakes
+      </a>
+    </p>
+
+    <hr>
+
+    <h2>Score select</h2>
+    <p>
+      Name: <input type="text" id="forevalName" name="name" value="test">
+      <button id="loadButton">Load</button>
+    </p>
+
+    <h2>Score view</h2>
+    <p>
+      <button id="clearButton">Clear diff</button>
+    </p>
+
+    <div id="imagesDiv" class="relative">
+      <img src="spacer.svg" id="modelImg" class="absolute" />
+      <img src="spacer.svg" id="mistakesImg" class="absolute" />
+    </div>
+
+    <h2>BLE-MIDI Function</h2>
+    <p>
+      Status: <span id="statusSpan"></span>
+    </p>
+    <p>
+      <button id="selectStartButton">select start</button><br>
+      <button id="stopButton">stop</button><br>
+    </p>
+
+    <h2>Status / result</h2>
+    <p>
+      <textarea id="postResult" readonly cols="80" rows="5"></textarea>
+    </p>
+  </body>
+</html>
