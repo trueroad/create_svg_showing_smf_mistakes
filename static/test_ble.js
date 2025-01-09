@@ -1,16 +1,16 @@
 /**
- * Sample BLE-MIDI to SMF continuance.
- * @module sample-BLE-MIDI-to-SMF-cont
+ * Test BLE-MIDI
+ * @module test_ble
  * @author Masamichi Hosoda <trueroad@trueroad.jp>
- * @copyright (C) Masamichi Hosoda 2023
+ * @copyright (C) Masamichi Hosoda 2023, 2025
  * @license BSD-2-Clause
- * @see {@link https://github.com/trueroad/tr-MidiJS}
+ * @see {@link https://github.com/trueroad/create_svg_showing_smf_mistakes}
  */
 
-import {BleMidiDevice} from "../js/BleMidiDevice.js";
-import {MidiFilter} from "../js/MidiFilter.js";
-import {GapDetector} from "../js/GapDetector.js";
-import {SmfEncoder} from "../js/SmfEncoder.js";
+import {BleMidiDevice} from "./tr-MidiJS/BleMidiDevice.js";
+import {MidiFilter} from "./tr-MidiJS/MidiFilter.js";
+import {GapDetector} from "./tr-MidiJS/GapDetector.js";
+import {SmfEncoder} from "./tr-MidiJS/SmfEncoder.js";
 import {getISOStringTZ} from "./getISOStringTZ.js";
 
 /**
