@@ -8,6 +8,12 @@
  */
 
 //
+// API URL
+//
+
+export const postUrl = "../midi/diffsvg";
+
+//
 // Element ID
 //
 

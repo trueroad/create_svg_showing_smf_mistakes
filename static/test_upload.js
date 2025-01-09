@@ -8,7 +8,7 @@
  */
 
 import {
-  mistakesImg, forevalName, postResult, revokeMistakeURL
+  mistakesImg, forevalName, postResult, postUrl, revokeMistakeURL
 } from "./test_common.js";
 
 //
@@ -46,7 +46,7 @@ function clickDiffButton() {
   formData.append("name", forevalName.value);
 
   // APIへ作成したフォームをPOSTする
-  fetch("../midi/diffsvg", {method: "POST", body: formData})
+  fetch(postUrl, {method: "POST", body: formData})
     .then((resp) => {
       // POSTレスポンスのチェックと加工
       console.log("resp.ok: ", resp.ok);
