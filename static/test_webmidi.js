@@ -1,16 +1,16 @@
 /**
- * Sample Web MIDI to SMF continuance.
- * @module sample-WebMIDI-to-SMF-cont
+ * Test WebMIDI
+ * @module test_webmidi
  * @author Masamichi Hosoda <trueroad@trueroad.jp>
- * @copyright (C) Masamichi Hosoda 2023
+ * @copyright (C) Masamichi Hosoda 2023, 2025
  * @license BSD-2-Clause
- * @see {@link https://github.com/trueroad/tr-MidiJS}
+ * @see {@link https://github.com/trueroad/create_svg_showing_smf_mistakes}
  */
 
-import {WebMidiDevice} from "../js/WebMidiDevice.js";
-import {MidiFilter} from "../js/MidiFilter.js";
-import {GapDetector} from "../js/GapDetector.js";
-import {SmfEncoder} from "../js/SmfEncoder.js";
+import {WebMidiDevice} from "./tr-MidiJS/WebMidiDevice.js";
+import {MidiFilter} from "./tr-MidiJS/MidiFilter.js";
+import {GapDetector} from "./tr-MidiJS/GapDetector.js";
+import {SmfEncoder} from "./tr-MidiJS/SmfEncoder.js";
 import {getISOStringTZ} from "./getISOStringTZ.js";
 
 /**
