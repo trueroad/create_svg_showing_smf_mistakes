@@ -4,6 +4,9 @@ include $(MAKE_DIR)/common-tools.mk
 # モデル名（モデルソースディレクトリ中のディレクトリ名）
 MODEL_NAME = $(shell $(REALPATH_RELATIVE_TO) $(MODELS_SRC_DIR) $(MODEL_DIR))
 
+# モデル設定ファイル名
+MODEL_CONFIG = config.toml
+
 # モデルの拡張子を除いたファイル名
 MODEL_STEM = model
 
@@ -53,6 +56,12 @@ TARGET = $(TARGET_STATIC_MODEL) $(TARGET_MODEL)
 # テスト用評価対象ターゲット
 TARGET_TEST = $(FOREVALS_MID) $(FOREVALS_PDF)
 
+# インストールファイルのうちユーザに見せる（static ディレクトリに入れる）もの
+INSTALL_STATIC_MODEL = $(TARGET_STATIC_MODEL)
+
+# インストールファイルのうちシステムだけが使うもの
+INSTALL_MODEL = $(TARGET_MODEL) $(MODEL_CONFIG)
+
 
 all: $(TARGET_INTERMEDIATE) $(TARGET) $(TARGET_TEST)
 
@@ -63,17 +72,17 @@ clean:
 
 install: $(TARGET)
 	$(INSTALL) -d $(DEST_STATIC_MODELS_DIR)/$(MODEL_NAME)
-	$(INSTALL_DATA) $(TARGET_STATIC_MODEL) \
+	$(INSTALL_DATA) $(INSTALL_STATIC_MODEL) \
 		$(DEST_STATIC_MODELS_DIR)/$(MODEL_NAME)
 	$(INSTALL) -d $(DEST_MODELS_DIR)/$(MODEL_NAME)
-	$(INSTALL_DATA) $(TARGET_MODEL) \
+	$(INSTALL_DATA) $(INSTALL_MODEL) \
 		$(DEST_MODELS_DIR)/$(MODEL_NAME)
 
 uninstall:
-	$(RM) $(addprefix $(DEST_MODELS_DIR)/$(MODEL_NAME)/, $(TARGET_MODEL))
+	$(RM) $(addprefix $(DEST_MODELS_DIR)/$(MODEL_NAME)/, $(INSTALL_MODEL))
 	-$(RMDIR) $(DEST_MODELS_DIR)/$(MODEL_NAME)/
 	$(RM) $(addprefix $(DEST_STATIC_MODELS_DIR)/$(MODEL_NAME)/, \
-		$(TARGET_STATIC_MODEL))
+		$(INSTALL_STATIC_MODEL))
 	-$(RMDIR) $(DEST_STATIC_MODELS_DIR)/$(MODEL_NAME)/
 
 
