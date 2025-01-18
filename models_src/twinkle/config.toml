@@ -1,0 +1,5 @@
+title = "きらきら星変奏曲のテーマより冒頭部分を抜粋"
+
+[model]
+smf = "model.mid"
+list = "model.list.txt"

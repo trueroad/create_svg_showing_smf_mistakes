@@ -1,0 +1,5 @@
+title = "テスト"
+
+[model]
+smf = "model.mid"
+list = "model.list.txt"
