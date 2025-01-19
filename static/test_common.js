@@ -52,6 +52,9 @@ export function revokeMistakeURL() {
 function clickLoadButton() {
   console.log("clickLoadButton");
 
+  // 表示差分をクリアする
+  clickClearButton();
+
   // モデル名を取得してモデルSVGを設定
   const name = forevalName.value;
   modelImg.src = `models/${name}/model.svg`
