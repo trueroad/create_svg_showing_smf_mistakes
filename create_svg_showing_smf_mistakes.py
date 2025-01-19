@@ -5,7 +5,7 @@ Create SVG showing SMF (Standard MIDI File) mistakes.
 
 https://github.com/trueroad/create_svg_showing_smf_mistakes
 
-Copyright (C) 2024 Masamichi Hosoda.
+Copyright (C) 2024, 2025 Masamichi Hosoda.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -44,6 +44,8 @@ import cairo
 
 # https://gist.github.com/trueroad/97477dab8beca099afeb4af5199634e2
 import smf_diff
+# https://gist.github.com/trueroad/b0d051af003c61aafb3eac0c051e5f89
+import config_file
 
 
 @dataclass(frozen=True)
@@ -208,6 +210,7 @@ class mistakes:
         """__init__."""
         self.tnr: tick_note_rect = tick_note_rect()
         self.sd: smf_diff.smf_difference = smf_diff.smf_difference()
+        self.cf: config_file.config_file = config_file.config_file()
 
     def load_text(self, filename: Union[str, bytes, os.PathLike[Any]]
                   ) -> None:
@@ -218,6 +221,16 @@ class mistakes:
                    ) -> bool:
         """Load model SMF."""
         return self.sd.load_model(filename)
+
+    def load_config(self, filename: Union[str, os.PathLike[str]]
+                    ) -> bool:
+        """Load model config."""
+        if not self.cf.load_config_file(filename):
+            return False
+        self.tnr.load_text(self.cf.config_dir /
+                           self.cf.get_value_str('model', 'list'))
+        return self.sd.load_model(self.cf.config_dir /
+                                  self.cf.get_value_str('model', 'smf'))
 
     def load_foreval(self, filename: Union[str, bytes, os.PathLike[Any]]
                      ) -> bool:
