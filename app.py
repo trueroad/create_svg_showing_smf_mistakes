@@ -50,8 +50,7 @@ from werkzeug import Response
 import create_svg_showing_smf_mistakes
 
 MODEL_PATH: Final[Path] = Path('models')
-MODEL_MID: Final[Path] = Path('model.mid')
-MODEL_LIST: Final[Path] = Path('model.list.txt')
+MODEL_CONFIG: Final[Path] = Path('config.toml')
 POSTFILE: Final[Path] = Path('post.bin')
 
 app = Flask(__name__)
@@ -107,15 +106,10 @@ def diffsvg() -> Union[Response, tuple[Response, int]]:
     if not modelpath.is_dir():
         return make_response('Name not found.'), 400
 
-    # モデルSMF存在チェック
-    modelmid: Final[Path] = modelpath / MODEL_MID
-    if not modelmid.is_file():
-        return make_response('SMF not found.'), 400
-
-    # モデルLIST存在チェック
-    modellist: Final[Path] = modelpath / MODEL_LIST
-    if not modellist.is_file():
-        return make_response('List not found.'), 400
+    # モデル設定ファイル存在チェック
+    modelconfig: Final[Path] = modelpath / MODEL_CONFIG
+    if not modelconfig.is_file():
+        return make_response('Model config not found.'), 400
 
     # モデル名をベースにテンポラリファイルのプレフィックスを決定
     name_replaced: Final[str] = name.replace('/', '_')
@@ -130,8 +124,7 @@ def diffsvg() -> Union[Response, tuple[Response, int]]:
 
         # 比較
         mst = create_svg_showing_smf_mistakes.mistakes()
-        mst.load_text(modellist)
-        mst.load_model(modelmid)
+        mst.load_config(modelconfig)
         mst.load_foreval(tmpmid.name)
         mst.diff()
 
