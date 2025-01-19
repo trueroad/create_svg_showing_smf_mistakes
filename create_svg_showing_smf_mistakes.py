@@ -341,20 +341,18 @@ class mistakes:
 
 def main() -> None:
     """Do main."""
-    if len(sys.argv) != 5:
+    if len(sys.argv) != 4:
         print('Usage: ./create_svg_showing_smf_mistakes.py '
-              '[(in)LIST.TXT (in)MODEL.MID (in)FOREVAL.MID (out)MISTAKES.SVG]')
+              '[(in)CONFIG.TOML (in)FOREVAL.MID (out)MISTAKES.SVG]')
         sys.exit(1)
 
-    list_filename: Final[str] = sys.argv[1]
-    model_filename: Final[str] = sys.argv[2]
-    foreval_filename: Final[str] = sys.argv[3]
-    svg_filename: Final[str] = sys.argv[4]
+    config_filename: Final[str] = sys.argv[1]
+    foreval_filename: Final[str] = sys.argv[2]
+    svg_filename: Final[str] = sys.argv[3]
 
     mst: mistakes = mistakes()
 
-    mst.load_text(list_filename)
-    mst.load_model(model_filename)
+    mst.load_config(config_filename)
     mst.load_foreval(foreval_filename)
     mst.diff()
 

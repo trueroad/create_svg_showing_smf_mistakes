@@ -2,6 +2,8 @@
 MODEL_MID = models/test/model.mid
 # モデルの tick 音符座標リスト
 LIST_TEXT = models/test/model.list.txt
+# モデル設定ファイル
+MODEL_CONFIG = models/test/config.toml
 
 # 評価対象 SMF
 FOREVAL_MID = models_src/test/foreval.mid
@@ -14,13 +16,13 @@ TARGET = $(MISTAKES_SVG)
 
 all: prepare $(TARGET)
 
-prepare: $(MODEL_MID) $(LIST_TEXT) $(FOREVAL_MID)
+prepare: $(MODEL_MID) $(LIST_TEXT) $(MODEL_CONFIG) $(FOREVAL_MID)
 
 .PHONY: all clean prepare
 
 CREATE_SVG_SHOWING_SMF_MISTAKES = ./create_svg_showing_smf_mistakes.py
 
-$(MODEL_MID) $(LIST_TEXT) $(FOREVAL_MID):
+$(MODEL_MID) $(LIST_TEXT) $(MODEL_CONFIG) $(FOREVAL_MID):
 	$(MAKE) -C models_src
 	$(MAKE) -C models_src install
 
@@ -29,5 +31,7 @@ clean:
 	$(RM) *~ $(TARGET)
 
 # 間違い表示 SVG を出力する
-$(MISTAKES_SVG): $(LIST_TEXT) $(MODEL_MID) $(FOREVAL_MID)
-	$(CREATE_SVG_SHOWING_SMF_MISTAKES) $^ $@
+$(MISTAKES_SVG): $(LIST_TEXT) $(MODEL_MID) $(MODEL_CONFIG) $(FOREVAL_MID)
+	$(CREATE_SVG_SHOWING_SMF_MISTAKES) \
+		$(MODEL_CONFIG) $(FOREVAL_MID) \
+		$@
