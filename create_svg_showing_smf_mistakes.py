@@ -334,6 +334,8 @@ class mistakes:
         """Draw all."""
         self.draw_missing_notes(context)
         self.draw_extra_notes(context)
+        self.draw_too_slow(context)
+        self.draw_too_fast(context)
 
     def draw_missing_notes(self, context: cairo.Context) -> None:
         """Draw missing notes."""
