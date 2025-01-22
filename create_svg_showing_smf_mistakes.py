@@ -295,6 +295,28 @@ class mistakes:
         """Load model config."""
         if not self.cf.load_config_file(filename):
             return False
+
+        if self.cf.has_value('threshold', 'max_time_ratio'):
+            self.max_time_ratio = self.cf.get_value_float(
+                'threshold', 'max_time_ratio')
+        if self.cf.has_value('threshold', 'min_time_ratio'):
+            self.min_time_ratio = self.cf.get_value_float(
+                'threshold', 'min_time_ratio')
+        if self.cf.has_value('threshold', 'max_duration_ratio'):
+            self.max_duration_ratio = self.cf.get_value_float(
+                'threshold', 'max_duration_ratio')
+        if self.cf.has_value('threshold', 'min_duration_ratio'):
+            self.min_duration_ratio = self.cf.get_value_float(
+                'threshold', 'min_duration_ratio')
+        if self.cf.has_value('text', 'too_slow'):
+            self.too_slow_text = self.cf.get_value_str('text', 'too_slow')
+        if self.cf.has_value('text', 'too_fast'):
+            self.too_fast_text = self.cf.get_value_str('text', 'too_fast')
+        if self.cf.has_value('text', 'too_long'):
+            self.too_long_text = self.cf.get_value_str('text', 'too_long')
+        if self.cf.has_value('text', 'too_short'):
+            self.too_short_text = self.cf.get_value_str('text', 'too_short')
+
         self.tnr.load_text(self.cf.config_dir /
                            self.cf.get_value_str('model', 'list'))
         return self.sd.load_model(self.cf.config_dir /
