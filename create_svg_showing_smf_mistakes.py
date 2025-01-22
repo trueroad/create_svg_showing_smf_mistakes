@@ -260,6 +260,8 @@ class mistakes:
         self.min_time_ratio: float = 0.8
         # 長すぎ検出スレッショルド
         self.max_duration_ratio: float = 1.2
+        # 短すぎ検出スレッショルド
+        self.min_duration_ratio: float = 0.8
 
         # 遅すぎ上方パディング（単位：符頭高さの倍数）
         self.too_slow_top_padding: float = 1.0
@@ -275,6 +277,8 @@ class mistakes:
         self.too_fast_text: str = 'Too fast'
         # 長すぎテキスト
         self.too_long_text: str = 'Too long'
+        # 短すぎテキスト
+        self.too_short_text: str = 'Too short'
 
     def load_text(self, filename: Union[str, bytes, os.PathLike[Any]]
                   ) -> None:
@@ -484,6 +488,16 @@ class mistakes:
                               tick=nt.note_model.note_on.abs_tick,
                               noteno=nt.note_model.note_on.note_event.note)],
                           self.too_long_text)
+
+    def draw_too_short(self, context: cairo.Context) -> None:
+        """Draw too short."""
+        for nt in self.sd.note_timing:
+            if nt.ratio_duration < self.min_duration_ratio:
+                draw_text(context,
+                          self.tnr.note_dict[tick_noteno_container(
+                              tick=nt.note_model.note_on.abs_tick,
+                              noteno=nt.note_model.note_on.note_event.note)],
+                          self.too_short_text)
 
 
 def main() -> None:
