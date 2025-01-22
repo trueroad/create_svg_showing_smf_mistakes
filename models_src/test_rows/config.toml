@@ -1,0 +1,5 @@
+title = "複数段テスト"
+
+[model]
+smf = "model.mid"
+list = "model.list.txt"
