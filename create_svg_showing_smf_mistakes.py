@@ -254,6 +254,8 @@ class mistakes:
         self.sd: smf_diff.smf_difference = smf_diff.smf_difference()
         self.cf: config_file.config_file = config_file.config_file()
 
+        self.context: cairo.Context
+
         # 遅すぎ検出スレッショルド
         self.max_time_ratio: float = 1.2
         # 速すぎ検出スレッショルド
@@ -338,38 +340,39 @@ class mistakes:
         surface: cairo.SVGSurface
         with cairo.SVGSurface(fobj, self.tnr.svg_width, self.tnr.svg_height
                               ) as surface:
-            self.draw_all(cairo.Context(surface))
+            self.context = cairo.Context(surface)
+            self.draw_all()
 
-    def draw_notes(self, context: cairo.Context) -> None:
+    def draw_notes(self) -> None:
         """Draw notes for debug."""
         for nr in self.tnr.note_dict.values():
-            draw_rectangle(context, nr)
+            draw_rectangle(self.context, nr)
 
-    def draw_tick_rects(self, context: cairo.Context) -> None:
+    def draw_tick_rects(self) -> None:
         """Draw tick rects for debug."""
         for tr in self.tnr.tick_rect_dict.values():
-            draw_rectangle(context, tr)
+            draw_rectangle(self.context, tr)
 
-    def draw_rows(self, context: cairo.Context) -> None:
+    def draw_rows(self) -> None:
         """Draw rows for debug."""
         for rr in self.tnr.row_dict.values():
-            draw_rectangle(context, rr)
+            draw_rectangle(self.context, rr)
 
-    def draw_notenos(self, context: cairo.Context) -> None:
+    def draw_notenos(self) -> None:
         """Draw notenos for debug."""
         for nnr in self.tnr.noteno_dict.values():
-            draw_rectangle(context, nnr)
+            draw_rectangle(self.context, nnr)
 
-    def draw_all(self, context: cairo.Context) -> None:
+    def draw_all(self) -> None:
         """Draw all."""
-        self.draw_missing_notes(context)
-        self.draw_extra_notes(context)
-        self.draw_too_slow(context)
-        self.draw_too_fast(context)
-        self.draw_too_long(context)
-        self.draw_too_short(context)
+        self.draw_missing_notes()
+        self.draw_extra_notes()
+        self.draw_too_slow()
+        self.draw_too_fast()
+        self.draw_too_long()
+        self.draw_too_short()
 
-    def draw_missing_notes(self, context: cairo.Context) -> None:
+    def draw_missing_notes(self) -> None:
         """Draw missing notes."""
         for nc in self.sd.missing_note:
             # pprint.pprint(nc)
@@ -377,9 +380,9 @@ class mistakes:
                 tick=nc.note_on.abs_tick,
                 noteno=nc.note_on.note_event.note)]
             # pprint.pprint(rect)
-            draw_cross(context, rect)
+            draw_cross(self.context, rect)
 
-    def draw_extra_notes(self, context: cairo.Context) -> None:
+    def draw_extra_notes(self) -> None:
         """Draw extra notes."""
         entc_list: list[extra_noteno_tick_container] = []
         foreval_noteno: set[int] = set()
@@ -451,9 +454,9 @@ class mistakes:
 
             rect = rect_container(
                 left=left, top=top, right=right, bottom=bottom)
-            draw_ellipse(context, rect)
+            draw_ellipse(self.context, rect)
 
-    def draw_too_slow(self, context: cairo.Context) -> None:
+    def draw_too_slow(self) -> None:
         """Draw too slow."""
         too_slow_tick: set[int] = set()
         for nt in self.sd.note_timing:
@@ -462,7 +465,7 @@ class mistakes:
         for tick in too_slow_tick:
             rect = self.tnr.tick_rect_dict[tick]
             x = (rect.left + rect.right) / 2
-            draw_line(context,
+            draw_line(self.context,
                       x,
                       rect.top -
                       self.too_slow_top_padding * self.tnr.head_height,
@@ -476,9 +479,9 @@ class mistakes:
                 right=rect.right,
                 bottom=rect.top -
                 self.too_slow_top_padding * self.tnr.head_height)
-            draw_text(context, rect_text, self.too_slow_text)
+            draw_text(self.context, rect_text, self.too_slow_text)
 
-    def draw_too_fast(self, context: cairo.Context) -> None:
+    def draw_too_fast(self) -> None:
         """Draw too fast."""
         too_fast_tick: set[int] = set()
         for nt in self.sd.note_timing:
@@ -487,7 +490,7 @@ class mistakes:
         for tick in too_fast_tick:
             rect = self.tnr.tick_rect_dict[tick]
             x = (rect.left + rect.right) / 2
-            draw_line(context,
+            draw_line(self.context,
                       x,
                       rect.top -
                       self.too_fast_top_padding * self.tnr.head_height,
@@ -501,23 +504,23 @@ class mistakes:
                 right=rect.right,
                 bottom=rect.bottom +
                 (self.too_fast_bottom_padding + 1) * self.tnr.head_height)
-            draw_text(context, rect_text, self.too_fast_text)
+            draw_text(self.context, rect_text, self.too_fast_text)
 
-    def draw_too_long(self, context: cairo.Context) -> None:
+    def draw_too_long(self) -> None:
         """Draw too long."""
         for nt in self.sd.note_timing:
             if nt.ratio_duration > self.max_duration_ratio:
-                draw_text(context,
+                draw_text(self.context,
                           self.tnr.note_dict[tick_noteno_container(
                               tick=nt.note_model.note_on.abs_tick,
                               noteno=nt.note_model.note_on.note_event.note)],
                           self.too_long_text)
 
-    def draw_too_short(self, context: cairo.Context) -> None:
+    def draw_too_short(self) -> None:
         """Draw too short."""
         for nt in self.sd.note_timing:
             if nt.ratio_duration < self.min_duration_ratio:
-                draw_text(context,
+                draw_text(self.context,
                           self.tnr.note_dict[tick_noteno_container(
                               tick=nt.note_model.note_on.abs_tick,
                               noteno=nt.note_model.note_on.note_event.note)],
