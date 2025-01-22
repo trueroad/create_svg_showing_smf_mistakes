@@ -257,6 +257,26 @@ class mistakes:
                               ) as surface:
             self.draw_all(cairo.Context(surface))
 
+    def draw_notes(self, context: cairo.Context) -> None:
+        """Draw notes for debug."""
+        for nr in self.tnr.note_dict.values():
+            draw_rectangle(context, nr)
+
+    def draw_tick_rects(self, context: cairo.Context) -> None:
+        """Draw tick rects for debug."""
+        for tr in self.tnr.tick_rect_dict.values():
+            draw_rectangle(context, tr)
+
+    def draw_rows(self, context: cairo.Context) -> None:
+        """Draw rows for debug."""
+        for rr in self.tnr.row_dict.values():
+            draw_rectangle(context, rr)
+
+    def draw_notenos(self, context: cairo.Context) -> None:
+        """Draw notenos for debug."""
+        for nnr in self.tnr.noteno_dict.values():
+            draw_rectangle(context, nnr)
+
     def draw_all(self, context: cairo.Context) -> None:
         """Draw all."""
         self.draw_missing_notes(context)
