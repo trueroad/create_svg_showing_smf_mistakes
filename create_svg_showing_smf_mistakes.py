@@ -98,15 +98,25 @@ class tick_note_rect:
 
     def __init__(self) -> None:
         """__init__."""
+        # 絶対tickとノート番号の組み合わせから、符頭の座標を得る辞書
         self.note_dict: dict[tick_noteno_container, rect_container] = {}
+        # 絶対tickから、符頭の範囲の座標を得る辞書
         self.tick_rect_dict: dict[int, rect_container] = {}
+        # 絶対tickから、行番号を得る辞書
         self.tick_row_dict: dict[int, int] = {}
+        # 行番号から、符頭の範囲の座標を得る辞書
         self.row_dict: dict[int, rect_container] = {}
+        # ノート番号と行番号の組み合わせから、符頭の範囲の座標を得る辞書
         self.noteno_dict: dict[noteno_row_container, rect_container] = {}
+        # 全ノート番号と行番号の組み合わせから、y座標範囲を得る辞書
         self.extra_y_dict: dict[noteno_row_container, tb_container] = {}
+        # SVGの幅
         self.svg_width: float
+        # SVGの高さ
         self.svg_height: float
+        # 標準的な符頭の幅
         self.head_width: float
+        # 標準的な不等の高さ
         self.head_height: float
 
     def load_text(self, filename: Union[str, bytes, os.PathLike[Any]]
