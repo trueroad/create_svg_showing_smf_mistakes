@@ -371,7 +371,7 @@ class mistakes:
     def draw_all(self) -> None:
         """Draw all."""
         self.draw_missing_notes()
-        self.draw_extra_notes()
+        self.draw_extra_notes_cluster()
         self.draw_too_slow()
         self.draw_too_fast()
         self.draw_too_long()
@@ -387,8 +387,8 @@ class mistakes:
             # pprint.pprint(rect)
             draw_cross(self.context, rect)
 
-    def draw_extra_notes(self) -> None:
-        """Draw extra notes."""
+    def draw_extra_notes_cluster(self) -> None:
+        """Draw extra notes cluster."""
         entc_list: list[extra_noteno_tick_container] = []
         foreval_noteno: set[int] = set()
         abs_tick_before_extra_before: int = -1
