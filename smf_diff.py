@@ -5,7 +5,7 @@ Diff SMF (Standard MIDI File).
 
 https://gist.github.com/trueroad/97477dab8beca099afeb4af5199634e2
 
-Copyright (C) 2021, 2022, 2024 Masamichi Hosoda.
+Copyright (C) 2021, 2022, 2024, 2025 Masamichi Hosoda.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@ import smf_sort_poly
 import diff_levenshtein
 
 
-VERSION: Final[str] = "20240926.01"
+VERSION: Final[str] = "20250122.01"
 
 
 class note_for_diff:
@@ -234,26 +234,44 @@ class extra_note_container:
 
     # 音符（評価対象側）
     note: smf_parse.note_container
-    # 余計な音符の前の MBT （モデル側）
+
+    # 余計な音符の前で最後に対応する音符の MBT （モデル側）
+    # 前に対応する音符無しなら最初の音符の MBT か音符無しならゼロ
     mbt_before_extra: smf_parse.mbt_container
-    # 余計な音符の後の MBT （モデル側）
+    # 余計な音符の後で最初に対応する音符の MBT （モデル側）
+    # 後に対応する音符無しなら最後の音符の MBT か音符無しならゼロ
     mbt_after_extra: smf_parse.mbt_container
-    # 余計な音符の前の絶対 tick （モデル側）
+    # 余計な音符の前で最後に対応する音符の絶対 tick （モデル側）
+    # 前に対応する音符無しなら最初の音符の絶対 tick か音符無しならゼロ
     abs_tick_before_extra: int
-    # 余計な音符の後の絶対 tick （モデル側）
+    # 余計な音符の後で最初に対応する音符の絶対 tick （モデル側）
+    # 後に対応する音符無しなら最後の音符の絶対 tick か音符無しならゼロ
     abs_tick_after_extra: int
-    # モデルの最初の音符より前にあるか
+    # モデルの最初の音符より前にある、または最初の音符を置き換える
+    # （前に対応する音符無し）
     b_before_model_first: bool
-    # モデルの最後の音符より後にあるか
+    # モデルの最後の音符より後にある、または最後の音符を置き換える
+    # （後に対応する音符無し）
     b_after_model_last: bool
-    # 余計な音符の前の MBT （評価対象側）
-    foreval_mbt_before_extra: Optional[smf_parse.mbt_container]
-    # 余計な音符の後の MBT （評価対象側）
-    foreval_mbt_after_extra: Optional[smf_parse.mbt_container]
-    # 余計な音符の前の絶対 tick （評価対象側）
-    foreval_abs_tick_before_extra: Optional[int]
-    # 余計な音符の後の絶対 tick （評価対象側）
-    foreval_abs_tick_after_extra: Optional[int]
+
+    # 余計な音符の前で最後に対応する音符の MBT （評価対象側）
+    # 前に対応する音符無しなら最初の音符の MBT か音符無しならゼロ
+    foreval_mbt_before_extra: smf_parse.mbt_container
+    # 余計な音符の後で最後に対応する音符の MBT （評価対象側）
+    # 後に対応する音符無しなら最後の音符の MBT か音符無しならゼロ
+    foreval_mbt_after_extra: smf_parse.mbt_container
+    # 余計な音符の前で最後に対応する音符の絶対 tick （評価対象側）
+    # 前に対応する音符無しなら最初の音符の絶対 tick か音符無しならゼロ
+    foreval_abs_tick_before_extra: int
+    # 余計な音符の後で最初に対応する音符のの絶対 tick （評価対象側）
+    # 後に対応する音符無しなら最後の音符の絶対 tick か音符無しならゼロ
+    foreval_abs_tick_after_extra: int
+    # 評価対象の最初の音符からはじまる
+    # （前に対応する音符無し）
+    b_before_foreval_first: bool
+    # 評価対象の最後の音符まで含む
+    # （後に対応する音符無し）
+    b_after_foreval_last: bool
 
 
 class smf_difference:
@@ -739,7 +757,8 @@ class smf_difference:
         abs_tick_before_extra: int
         abs_tick_after_extra: int
         if i1 == 0:
-            # モデル側の最初の音符の前に余計な音符がある
+            # モデル側の最初の音符の前に余計な音符があるか
+            # 最初の音符を置き換える余計な音符がある
             b_before_model_first = True
             if len(self.model_diff) > 0:
                 # モデル側の最初の音符の MBT を採る
@@ -776,14 +795,26 @@ class smf_difference:
             abs_tick_after_extra = \
                 self.model_diff[i2].note.note_on.abs_tick
 
-        mbt_before_extra_foreval: Optional[smf_parse.mbt_container]
-        mbt_after_extra_foreval: Optional[smf_parse.mbt_container]
-        abs_tick_before_extra_foreval: Optional[int]
-        abs_tick_after_extra_foreval: Optional[int]
+        b_before_foreval_first: bool = False
+        b_after_foreval_last: bool = False
+        mbt_before_extra_foreval: smf_parse.mbt_container
+        mbt_after_extra_foreval: smf_parse.mbt_container
+        abs_tick_before_extra_foreval: int
+        abs_tick_after_extra_foreval: int
         if j1 == 0:
             # 評価対象側の最初の音符からはじまる
-            foreval_mbt_before_extra = None
-            foreval_abs_tick_before_extra = None
+            b_before_foreval_first = True
+            if len(self.foreval_diff) > 0:
+                # 評価対象側の最初の音符の MBT を採る
+                foreval_mbt_before_extra = \
+                    self.foreval_diff[j1].note.note_on.mbt
+                foreval_abs_tick_before_extra = \
+                    self.foreval_diff[j1].note.note_on.abs_tick
+            else:
+                # 評価対象側に音符が無い
+                foreval_mbt_before_extra = smf_parse.mbt_container(
+                    measure=0, beat=0, tick=0)
+                foreval_abs_tick_before_extra = 0
         else:
             # 余計な音符が現れる直前で対応する評価対象の音符の MBT
             foreval_mbt_before_extra = \
@@ -792,8 +823,18 @@ class smf_difference:
                 self.foreval_diff[j1 - 1].note.note_on.abs_tick
         if j2 == len(self.foreval_diff):
             # 評価対象側の最後の音符まで含む
-            foreval_mbt_after_extra = None
-            foreval_abs_tick_after_extra = None
+            b_after_foreval_last = True
+            if j2 > 0:
+                # 評価対象側の最後の音符の MBT を採る
+                foreval_mbt_after_extra = \
+                    self.foreval_diff[j2 - 1].note.note_on.mbt
+                foreval_abs_tick_after_extra = \
+                    self.foreval_diff[j2 - 1].note.note_on.abs_tick
+            else:
+                # 評価対象側に音符が無い
+                foreval_mbt_after_extra = smf_parse.mbt_container(
+                    measure=0, beat=0, tick=0)
+                foreval_abs_tick_after_extra = 0
         else:
             # 余計な音符が現れた直後で対応する評価対象の音符の MBT
             foreval_mbt_after_extra = \
@@ -831,7 +872,9 @@ class smf_difference:
                 foreval_mbt_before_extra=foreval_mbt_before_extra,
                 foreval_mbt_after_extra=foreval_mbt_after_extra,
                 foreval_abs_tick_before_extra=foreval_abs_tick_before_extra,
-                foreval_abs_tick_after_extra=foreval_abs_tick_after_extra))
+                foreval_abs_tick_after_extra=foreval_abs_tick_after_extra,
+                b_before_foreval_first=b_before_foreval_first,
+                b_after_foreval_last=b_after_foreval_last))
 
     def calc_time_ratio(self) -> float:
         """
@@ -1338,7 +1381,7 @@ def main() -> None:
     print(f'Diff SMF (Standard MIDI File) {VERSION}\n\n'
           'https://gist.github.com/trueroad/'
           '97477dab8beca099afeb4af5199634e2\n\n'
-          'Copyright (C) 2021, 2022, 2024 Masamichi Hosoda.\n'
+          'Copyright (C) 2021, 2022, 2024, 2025 Masamichi Hosoda.\n'
           'All rights reserved.\n')
 
     import argparse
