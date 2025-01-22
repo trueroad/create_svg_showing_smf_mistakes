@@ -282,6 +282,11 @@ class mistakes:
         # 短すぎテキスト
         self.too_short_text: str = 'Too short'
 
+        # 左側にはみ出る際の余計な音符（個別）描画領域幅（単位：符頭幅の倍数）
+        self.extra_note_row_left: float = 2.0
+        # 右側にはみ出る際の余計な音符（個別）描画領域幅（単位：符頭幅の倍数）
+        self.extra_note_row_right: float = 2.0
+
     def load_text(self, filename: Union[str, bytes, os.PathLike[Any]]
                   ) -> None:
         """Load list text."""
@@ -452,6 +457,59 @@ class mistakes:
             if entc.b_after_model_last or row_before != row_after:
                 right += self.tnr.head_width
 
+            rect = rect_container(
+                left=left, top=top, right=right, bottom=bottom)
+            draw_ellipse(self.context, rect)
+
+    def draw_extra_notes_each(self) -> None:
+        """Draw extra notes each."""
+        for enc in self.sd.extra_note:
+            tick_before = enc.abs_tick_before_extra
+            tick_after = enc.abs_tick_after_extra
+            row_before = self.tnr.tick_row_dict[tick_before]
+            row_after = self.tnr.tick_row_dict[tick_after]
+
+            # 描画候補領域左端：前の対応する音符の左側
+            area_left = self.tnr.tick_rect_dict[tick_before].left
+            # 描画候補領域右端：後の対応する音符の右側
+            area_right = self.tnr.tick_rect_dict[tick_after].right
+
+            # 描画候補領域の補正
+            if row_before != row_after:
+                # 改行あり
+                # 最初の行（前の対応する音符がある行）の右端からはみ出させる
+                area_right = self.tnr.row_dict[row_before].right + \
+                    self.extra_note_row_right * self.tnr.head_width
+            if enc.b_before_model_first:
+                # 前の対応する音符無し
+                # 最初の音符の左側からはみ出させる
+                area_left -= self.extra_note_row_left * self.tnr.head_width
+            if enc.b_after_model_last and row_before == row_after:
+                # 後の対応する音符無し、かつ改行なし
+                # 最後の音符の右側からはみ出させる
+                area_right += self.extra_note_row_right * self.tnr.head_width
+
+            # 前後の対応する音符との時間関係を線形補間で求める
+
+            # 前後の対応する音符間のtick
+            ticks_foreval = float(enc.foreval_abs_tick_after_extra -
+                                  enc.foreval_abs_tick_before_extra)
+            # 余計な音符の相対的な位置
+            relative = (enc.note.note_on.abs_tick -
+                        enc.foreval_abs_tick_before_extra) / ticks_foreval
+            # 描画候補領域の幅
+            area_width = area_right - area_left
+
+            # 描画位置
+            left = area_left + (area_width - self.tnr.head_width) * relative
+            right = left + self.tnr.head_width
+            tb = self.tnr.extra_y_dict[noteno_row_container(
+                noteno=enc.note.note_on.note_event.note,
+                row=row_before)]
+            top = tb.top
+            bottom = tb.bottom
+
+            # 描画
             rect = rect_container(
                 left=left, top=top, right=right, bottom=bottom)
             draw_ellipse(self.context, rect)
