@@ -254,6 +254,16 @@ class mistakes:
         self.sd: smf_diff.smf_difference = smf_diff.smf_difference()
         self.cf: config_file.config_file = config_file.config_file()
 
+        # 遅すぎ検出スレッショルド
+        self.max_time_ratio: float = 1.2
+
+        # 遅すぎ上方パディング（単位：符頭高さの倍数）
+        self.too_slow_top_padding: float = 1.0
+        # 遅すぎ下方パディング（単位：符頭高さの倍数）
+        self.too_slow_bottom_padding: float = 0.0
+        # 遅すぎテキスト
+        self.too_slow_text: str = 'Too slow'
+
     def load_text(self, filename: Union[str, bytes, os.PathLike[Any]]
                   ) -> None:
         """Load list text."""
@@ -282,6 +292,7 @@ class mistakes:
     def diff(self) -> None:
         """Do diff."""
         self.sd.diff()
+        self.sd.calc_note_timing()
 
     def create_svg(self, fobj: Union[str, bytes, BinaryIO]
                    ) -> None:
@@ -399,6 +410,31 @@ class mistakes:
             rect = rect_container(
                 left=left, top=top, right=right, bottom=bottom)
             draw_ellipse(context, rect)
+
+    def draw_too_slow(self, context: cairo.Context) -> None:
+        """Draw too slow."""
+        too_slow_tick: set[int] = set()
+        for nt in self.sd.note_timing:
+            if nt.ratio is not None and nt.ratio > self.max_time_ratio:
+                too_slow_tick.add(nt.note_model.note_on.abs_tick)
+        for tick in too_slow_tick:
+            rect = self.tnr.tick_rect_dict[tick]
+            x = (rect.left + rect.right) / 2
+            draw_line(context,
+                      x,
+                      rect.top -
+                      self.too_slow_top_padding * self.tnr.head_height,
+                      x,
+                      rect.bottom +
+                      self.too_slow_bottom_padding * self.tnr.head_height)
+            rect_text = rect_container(
+                left=rect.left,
+                top=rect.top -
+                (self.too_slow_top_padding + 1) * self.tnr.head_height,
+                right=rect.right,
+                bottom=rect.top -
+                self.too_slow_top_padding * self.tnr.head_height)
+            draw_text(context, rect_text, self.too_slow_text)
 
 
 def main() -> None:
