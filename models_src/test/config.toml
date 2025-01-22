@@ -3,3 +3,19 @@ title = "テスト"
 [model]
 smf = "model.mid"
 list = "model.list.txt"
+
+[threshold]
+# 遅すぎ検出スレッショルド
+max_time_ratio = 1.2
+# 速すぎ検出スレッショルド
+min_time_ratio = 0.8
+# 長すぎ検出スレッショルド
+max_duration_ratio = 1.2
+# 短すぎ検出スレッショルド
+min_duration_ratio = 0.8
+
+[text]
+too_slow = "遅すぎ"
+too_fast = "速すぎ"
+too_long = "長すぎ"
+too_short = "短すぎ"
