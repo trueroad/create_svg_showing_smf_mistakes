@@ -221,6 +221,30 @@ def draw_rectangle(context: cairo.Context, rect: rect_container) -> None:
     context.fill()
 
 
+def draw_line(context: cairo.Context,
+              x1: float, y1: float, x2: float, y2: float) -> None:
+    """Draw line."""
+    context.set_line_width(1)
+    context.set_source_rgba(1, 0, 0, 0.7)
+    context.move_to(x1, y1)
+    context.line_to(x2, y2)
+    context.stroke()
+
+
+def draw_text(context: cairo.Context,
+              rect: rect_container, text: str) -> None:
+    """Draw text."""
+    context.select_font_face('sans-serif')
+    context.set_font_size(rect.bottom - rect.top)
+    context.set_source_rgba(1, 0, 0, 0.9)
+    # 指定した座標がベースラインの左端になる
+    # よくあるフォントはベースラインの上が 0.88 下が 0.12 あるので、
+    # rectの上下ピッタリに合わせるには以下のようにする。
+    # （和文フォントはだいたい合うが欧文はフォントや環境次第）
+    context.move_to(rect.left, rect.top + (rect.bottom - rect.top) * 0.88)
+    context.show_text(text)
+
+
 class mistakes:
     """Mistakes class."""
 
