@@ -203,6 +203,14 @@ def draw_ellipse(context: cairo.Context, rect: rect_container) -> None:
     context.restore()
 
 
+def draw_rectangle(context: cairo.Context, rect: rect_container) -> None:
+    """Draw rectangle."""
+    context.set_source_rgba(1, 0, 0, 0.5)
+    context.rectangle(rect.left, rect.top,
+                      rect.right - rect.left, rect.bottom - rect.top)
+    context.fill()
+
+
 class mistakes:
     """Mistakes class."""
 
