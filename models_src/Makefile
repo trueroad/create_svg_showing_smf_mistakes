@@ -1,7 +1,7 @@
-MODEL_DIRS := test test_rows twinkle
-
 include ../mk/common-dirs.mk
 include ../mk/common-tools.mk
+
+MODEL_DIRS := $(dir $(shell $(FIND) . -type f -name "config.toml"))
 
 .PHONY:	all clean install uninstall $(MODEL_DIRS)
 

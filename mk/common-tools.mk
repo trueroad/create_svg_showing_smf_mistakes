@@ -10,3 +10,4 @@ RMDIR = rmdir
 INSTALL = install
 INSTALL_DATA = $(INSTALL) -m 644
 REALPATH_RELATIVE_TO = realpath --relative-to
+FIND = find
