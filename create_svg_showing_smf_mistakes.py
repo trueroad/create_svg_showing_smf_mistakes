@@ -245,6 +245,35 @@ def draw_text(context: cairo.Context,
     context.show_text(text)
 
 
+def draw_centered_text(context: cairo.Context,
+                       rect: rect_container,
+                       text: str,
+                       red: float = 1.0,
+                       green: float = 0.0,
+                       blue: float = 0.0,
+                       alpha: float = 1.0) -> None:
+    """Draw centered text."""
+    context.select_font_face('sans-serif')
+    context.set_source_rgba(red, green, blue, alpha)
+
+    # いったんSVG高さをフォントサイズに設定する
+    font_size = rect.bottom - rect.top
+    context.set_font_size(font_size)
+
+    te = context.text_extents(text)
+    if te.width > (rect.right - rect.left):
+        # テキストの方が横長なのでフォントサイズを調整
+        font_size = font_size * (rect.right - rect.left) / te.width
+        context.set_font_size(font_size)
+        te = context.text_extents(text)
+
+    context.move_to((rect.right - rect.left) / 2.0 -
+                    te.width / 2.0 - te.x_bearing,
+                    (rect.bottom - rect.top) / 2.0 -
+                    te.height / 2.0 - te.y_bearing)
+    context.show_text(text)
+
+
 class mistakes:
     """Mistakes class."""
 
