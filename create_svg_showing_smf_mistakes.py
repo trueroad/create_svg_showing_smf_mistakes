@@ -377,8 +377,13 @@ class mistakes:
         self.draw_too_long()
         self.draw_too_short()
 
-    def draw_missing_notes(self) -> None:
-        """Draw missing notes."""
+    def draw_missing_notes(self) -> int:
+        """
+        欠落した音符にバツを描画する.
+
+        Returns:
+          int: 欠落した音符の数
+        """
         for nc in self.sd.missing_note:
             # pprint.pprint(nc)
             rect: rect_container = self.tnr.note_dict[tick_noteno_container(
@@ -386,9 +391,15 @@ class mistakes:
                 noteno=nc.note_on.note_event.note)]
             # pprint.pprint(rect)
             draw_cross(self.context, rect)
+        return len(self.sd.missing_note)
 
-    def draw_extra_notes_cluster(self) -> None:
-        """Draw extra notes cluster."""
+    def draw_extra_notes_cluster(self) -> int:
+        """
+        余計な音符を塊として楕円で描画する.
+
+        Returns:
+          int: 余計な音符の数
+        """
         entc_list: list[extra_noteno_tick_container] = []
         foreval_noteno: set[int] = set()
         abs_tick_before_extra_before: int = -1
@@ -461,8 +472,15 @@ class mistakes:
                 left=left, top=top, right=right, bottom=bottom)
             draw_ellipse(self.context, rect)
 
-    def draw_extra_notes_each(self) -> None:
-        """Draw extra notes each."""
+        return len(self.sd.extra_note)
+
+    def draw_extra_notes_each(self) -> int:
+        """
+        余計な音符を個別に楕円で描画する.
+
+        Returns:
+          int: 余計な音符の数
+        """
         for enc in self.sd.extra_note:
             tick_before = enc.abs_tick_before_extra
             tick_after = enc.abs_tick_after_extra
@@ -517,12 +535,21 @@ class mistakes:
                 bottom=bottom + self.tnr.head_height * 0.5)
             draw_ellipse(self.context, rect)
 
-    def draw_too_slow(self) -> None:
-        """Draw too slow."""
+        return len(self.sd.extra_note)
+
+    def draw_too_slow(self) -> int:
+        """
+        遅すぎを描画する.
+
+        Returns:
+          int: 遅すぎな音符の数
+        """
         too_slow_tick: set[int] = set()
+        counter: int = 0
         for nt in self.sd.note_timing:
             if nt.ratio is not None and nt.ratio > self.max_time_ratio:
                 too_slow_tick.add(nt.note_model.note_on.abs_tick)
+                counter += 1
         for tick in too_slow_tick:
             rect = self.tnr.tick_rect_dict[tick]
             x = (rect.left + rect.right) / 2
@@ -541,13 +568,21 @@ class mistakes:
                 bottom=rect.top -
                 self.too_slow_top_padding * self.tnr.head_height)
             draw_text(self.context, rect_text, self.too_slow_text)
+        return counter
 
-    def draw_too_fast(self) -> None:
-        """Draw too fast."""
+    def draw_too_fast(self) -> int:
+        """
+        速すぎを描画する.
+
+        Returns:
+          int: 速すぎな音符の数
+        """
         too_fast_tick: set[int] = set()
+        counter: int = 0
         for nt in self.sd.note_timing:
             if nt.ratio is not None and nt.ratio < self.min_time_ratio:
                 too_fast_tick.add(nt.note_model.note_on.abs_tick)
+                counter += 1
         for tick in too_fast_tick:
             rect = self.tnr.tick_rect_dict[tick]
             x = (rect.left + rect.right) / 2
@@ -566,19 +601,34 @@ class mistakes:
                 bottom=rect.bottom +
                 (self.too_fast_bottom_padding + 1) * self.tnr.head_height)
             draw_text(self.context, rect_text, self.too_fast_text)
+        return counter
 
-    def draw_too_long(self) -> None:
-        """Draw too long."""
+    def draw_too_long(self) -> int:
+        """
+        長すぎを描画する.
+
+        Returns:
+          int: 長すぎな音符の数
+        """
+        counter: int = 0
         for nt in self.sd.note_timing:
             if nt.ratio_duration > self.max_duration_ratio:
+                counter += 1
                 draw_text(self.context,
                           self.tnr.note_dict[tick_noteno_container(
                               tick=nt.note_model.note_on.abs_tick,
                               noteno=nt.note_model.note_on.note_event.note)],
                           self.too_long_text)
+        return counter
 
-    def draw_too_short(self) -> None:
-        """Draw too short."""
+    def draw_too_short(self) -> int:
+        """
+        短すぎを描画する.
+
+        Returns:
+          int: 短すぎな音符の数
+        """
+        counter: int = 0
         for nt in self.sd.note_timing:
             if nt.ratio_duration < self.min_duration_ratio:
                 draw_text(self.context,
@@ -586,6 +636,7 @@ class mistakes:
                               tick=nt.note_model.note_on.abs_tick,
                               noteno=nt.note_model.note_on.note_event.note)],
                           self.too_short_text)
+        return counter
 
 
 def main() -> None:
