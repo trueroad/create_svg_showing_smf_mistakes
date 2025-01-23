@@ -360,12 +360,9 @@ def main() -> None:
                 noteno_row_dict[(noteno, row)] = \
                     merge_rect(noteno_row_dict.get((noteno, row)), rect)
 
-        # 符頭上側座標リスト辞書、key: row, value: list[top]
-        top_list_dict: dict[int, list[float]] = {}
-        # 符頭下側座標リスト辞書、key: row, value: list[bottom]
-        bottom_list_dict: dict[int, list[float]] = {}
-        # 符頭ノート番号リスト辞書、key: row, value: list[noteno]
-        noteno_list_dict: dict[int, list[int]] = {}
+        # 符頭上下座標ノート番号リスト辞書
+        # key: row, value: list[top_bottom_noteno_container]
+        tbn_list_dict: dict[int, list[top_bottom_noteno_container]] = {}
 
         # ノート番号・行ループ
         noteno_row: tuple[int, int]
@@ -376,32 +373,39 @@ def main() -> None:
                   f'{rect.left}\t{rect.top}\t{rect.right}\t{rect.bottom}',
                   file=f)
 
-            top_list_dict[row] = top_list_dict.get(row, []) + [rect.top]
-            bottom_list_dict[row] = \
-                bottom_list_dict.get(row, []) + [rect.bottom]
-            noteno_list_dict[row] = \
-                noteno_list_dict.get(row, []) + [noteno]
+            tbn_list_dict[row] = \
+                tbn_list_dict.get(row, []) + [top_bottom_noteno_container(
+                    top=rect.top, bottom=rect.bottom, noteno=noteno)]
 
         # 行ループ 2 回目
         print('#extra-y\trow\tnoteno\ttop\tbottom', file=f)
         for row in row_dict.keys():
-            # 行内の符頭上側座標リスト
-            top_list: list[float] = top_list_dict[row]
-            # 行内の符頭下側座標リスト
-            bottom_list: list[float] = bottom_list_dict[row]
-            # 行内の符頭ノート番号リスト
-            noteno_list: list[int] = noteno_list_dict[row]
+            # 行内の符頭上下座標ノート番号リスト
+            tbn_list = tbn_list_dict[row]
 
             # 下側にはみ出る限界を設定
-            if min(noteno_list) > 0:
-                top_list.append(max(top_list) + head_height)
-                bottom_list.append(max(bottom_list) + head_height)
-                noteno_list.append(0)
+            if min(tbn_list, key=lambda x: x.noteno).noteno > 0:
+                tbn_list.append(top_bottom_noteno_container(
+                    top=max(tbn_list, key=lambda x: x.top).top +
+                    head_height,
+                    bottom=max(tbn_list, key=lambda x: x.bottom).bottom +
+                    head_height,
+                    noteno=0))
             # 上側にはみ出る限界を設定
-            if max(noteno_list) < 127:
-                top_list.append(min(top_list) - head_height)
-                bottom_list.append(min(bottom_list) - head_height)
-                noteno_list.append(127)
+            if max(tbn_list, key=lambda x: x.noteno).noteno < 127:
+                tbn_list.append(top_bottom_noteno_container(
+                    top=min(tbn_list, key=lambda x: x.top).top -
+                    head_height,
+                    bottom=min(tbn_list, key=lambda x: x.bottom).bottom -
+                    head_height,
+                    noteno=127))
+
+            # 行内の符頭上側座標リスト
+            top_list = [x.top for x in tbn_list]
+            # 行内の符頭下側座標リスト
+            bottom_list = [x.bottom for x in tbn_list]
+            # 行内の符頭ノート番号リスト
+            noteno_list = [x.noteno for x in tbn_list]
 
             # 補間
             top_inter = interpolate.interp1d(noteno_list, top_list)
