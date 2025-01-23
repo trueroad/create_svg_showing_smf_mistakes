@@ -234,7 +234,8 @@ def merge_rect(rect1: Optional[rect_container],
                           bottom=bottom)
 
 
-def improve_extra_y(tbn_list: list[top_bottom_noteno_container]
+def improve_extra_y(tbn_list: list[top_bottom_noteno_container],
+                    head_height: float
                     ) -> list[top_bottom_noteno_container]:
     """Improve extra y."""
     tl = sorted(tbn_list, key=lambda x: x.noteno)
@@ -263,7 +264,62 @@ def improve_extra_y(tbn_list: list[top_bottom_noteno_container]
         else:
             before_bottom = tl[i].bottom
 
-    return tl
+    # 大譜表の段間など間が空いている部分の補正
+
+    # 半音あたり符頭高さの半分より少し大きい値をスレッショルドにする
+    # （ミ→ファのように半音上がると五線譜の位置が1つ、
+    # 　つまり符頭高さの半分ほど位置が上がるのが最大であると考え、
+    # 　それより傾きが大きい場合は段間などがあると判定する）
+    head_th = head_height * 0.51
+    # オクターブ（12半音）で五線譜の位置が7つ（符頭高さの半分の7倍）と考え、
+    # これを補間する際の標準傾きとする
+    head_g = head_height * 0.5 * 7 / 12
+    # 補間で追加する符頭上下座標とノート番号のリスト
+    tbn_additional: list[top_bottom_noteno_container] = []
+    for i in range(1, len(tl)):
+        noteno_diff = tl[i].noteno - tl[i-1].noteno
+        if noteno_diff < 2:
+            # 間にノート番号が無いので補正しない
+            continue
+
+        # 傾きを計算
+        top_g = (tl[i-1].top - tl[i].top) / noteno_diff
+        bottom_g = (tl[i-1].bottom - tl[i].bottom) / noteno_diff
+
+        if top_g > head_th or bottom_g > head_th:
+            # 傾きがスレッショルドより急
+            if noteno_diff == 2:
+                # 間が1つだけ
+                # 符頭上座標は1つ高い音符の上座標から標準傾きにする
+                # （1つ低い音符からは傾きが極端に大きくなる）
+                # 符頭下座標は1つ低い音符の下座標から標準傾きにする
+                # （1つ高い音符からは傾きが極端に大きくなる）
+                # これにより補間部分の音符存在範囲が広くなる
+                tbn_additional.append(top_bottom_noteno_container(
+                    top=tl[i].top + head_g,
+                    bottom=tl[i-1].bottom - head_g,
+                    noteno=tl[i].noteno + 1))
+            else:
+                # 間が2つ以上ある
+                # 低い側の補間として低い側から1つ高いものを追加する
+                # 符頭上座標は高い音符の上座標から標準傾きにする
+                # （1つ低い音符からは傾きが極端に大きくなる）
+                # 符頭下座標は1つ低い音符の下座標から標準傾きにする
+                tbn_additional.append(top_bottom_noteno_container(
+                    top=tl[i].top + head_g * (noteno_diff - 1),
+                    bottom=tl[i-1].bottom - head_g,
+                    noteno=tl[i-1].noteno + 1))
+                # 高い側の補間として高い側から1つ低いものを追加する
+                # 符頭上座標は1つ高い音符の上座標から標準傾きにする
+                # 符頭下座標は低い音符の下座標から標準傾きにする
+                # （1つ高い音符からは傾きが極端に大きくなる）
+                tbn_additional.append(top_bottom_noteno_container(
+                    top=tl[i].top + head_g,
+                    bottom=tl[i-1].bottom - head_g * (noteno_diff - 1),
+                    noteno=tl[i].noteno - 1))
+                # これらにより補間部分の音符存在範囲が広くなる
+
+    return sorted(tl + tbn_additional, key=lambda x: x.noteno)
 
 
 def main() -> None:
@@ -433,7 +489,7 @@ def main() -> None:
                     noteno=127))
 
             # 補正
-            tbn_list = improve_extra_y(tbn_list)
+            tbn_list = improve_extra_y(tbn_list, head_height)
 
             # 行内の符頭上側座標リスト
             top_list = [x.top for x in tbn_list]
