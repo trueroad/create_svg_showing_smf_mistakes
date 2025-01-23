@@ -511,7 +511,10 @@ class mistakes:
 
             # 描画
             rect = rect_container(
-                left=left, top=top, right=right, bottom=bottom)
+                left=left - self.tnr.head_width * 0.5,
+                top=top - self.tnr.head_height * 0.5,
+                right=right + self.tnr.head_width * 0.5,
+                bottom=bottom + self.tnr.head_height * 0.5)
             draw_ellipse(self.context, rect)
 
     def draw_too_slow(self) -> None:
