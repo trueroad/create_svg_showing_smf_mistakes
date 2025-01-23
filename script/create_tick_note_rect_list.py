@@ -234,6 +234,38 @@ def merge_rect(rect1: Optional[rect_container],
                           bottom=bottom)
 
 
+def improve_extra_y(tbn_list: list[top_bottom_noteno_container]
+                    ) -> list[top_bottom_noteno_container]:
+    """Improve extra y."""
+    tl = sorted(tbn_list, key=lambda x: x.noteno)
+
+    # 符頭上側座標の折り返し（ottava記号などによるもの）を単調増加に補正
+    before_top = tl[0].top
+    for i in range(len(tl)):
+        if before_top < tl[i].top:
+            # 折り返し有り、補正する
+            tl[i] = top_bottom_noteno_container(
+                top=before_top,
+                bottom=tl[i].bottom,
+                noteno=tl[i].noteno)
+        else:
+            before_top = tl[i].top
+
+    # 符頭下側座標の折り返し（ottava記号などによるもの）を単調増加に補正
+    before_bottom = tl[-1].bottom
+    for i in reversed(range(len(tl))):
+        if before_bottom > tl[i].bottom:
+            # 折り返し有り、補正する
+            tl[i] = top_bottom_noteno_container(
+                top=tl[i].top,
+                bottom=before_bottom,
+                noteno=tl[i].noteno)
+        else:
+            before_bottom = tl[i].bottom
+
+    return tl
+
+
 def main() -> None:
     """Do main."""
     if len(sys.argv) != 5:
@@ -399,6 +431,9 @@ def main() -> None:
                     bottom=min(tbn_list, key=lambda x: x.bottom).bottom -
                     head_height,
                     noteno=127))
+
+            # 補正
+            tbn_list = improve_extra_y(tbn_list)
 
             # 行内の符頭上側座標リスト
             top_list = [x.top for x in tbn_list]
