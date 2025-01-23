@@ -371,7 +371,7 @@ class mistakes:
     def draw_all(self) -> None:
         """Draw all."""
         self.draw_missing_notes()
-        self.draw_extra_notes_cluster()
+        self.draw_extra_notes_each()
         self.draw_too_slow()
         self.draw_too_fast()
         self.draw_too_long()
