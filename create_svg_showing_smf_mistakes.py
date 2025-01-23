@@ -351,6 +351,7 @@ class mistakes:
         if self.cf.has_value('threshold', 'min_duration_ratio'):
             self.min_duration_ratio = self.cf.get_value_float(
                 'threshold', 'min_duration_ratio')
+
         if self.cf.has_value('text', 'too_slow'):
             self.too_slow_text = self.cf.get_value_str('text', 'too_slow')
         if self.cf.has_value('text', 'too_fast'):
@@ -359,6 +360,19 @@ class mistakes:
             self.too_long_text = self.cf.get_value_str('text', 'too_long')
         if self.cf.has_value('text', 'too_short'):
             self.too_short_text = self.cf.get_value_str('text', 'too_short')
+
+        if self.cf.has_value('text', 'perfect'):
+            self.perfect_message = self.cf.get_value_str('text', 'perfect')
+        if self.cf.has_value('text', 'perfect_red'):
+            self.perfect_red = self.cf.get_value_float('text', 'perfect_red')
+        if self.cf.has_value('text', 'perfect_green'):
+            self.perfect_green = self.cf.get_value_float(
+                'text', 'perfect_green')
+        if self.cf.has_value('text', 'perfect_blue'):
+            self.perfect_blue = self.cf.get_value_float('text', 'perfect_blue')
+        if self.cf.has_value('text', 'perfect_alpha'):
+            self.perfect_alpha = self.cf.get_value_float(
+                'text', 'perfect_alpha')
 
         self.tnr.load_text(self.cf.config_dir /
                            self.cf.get_value_str('model', 'list'))
