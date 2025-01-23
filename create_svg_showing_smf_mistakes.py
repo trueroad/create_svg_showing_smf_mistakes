@@ -316,6 +316,13 @@ class mistakes:
         # 右側にはみ出る際の余計な音符（個別）描画領域幅（単位：符頭幅の倍数）
         self.extra_note_row_right: float = 2.0
 
+        # 完璧に弾けたメッセージとRGBA指定
+        self.perfect_message: str = 'Perfect!'
+        self.perfect_red: float = 0.0
+        self.perfect_green: float = 0.5
+        self.perfect_blue: float = 0.0
+        self.perfect_alpha: float = 0.98
+
     def load_text(self, filename: Union[str, bytes, os.PathLike[Any]]
                   ) -> None:
         """Load list text."""
@@ -399,12 +406,22 @@ class mistakes:
 
     def draw_all(self) -> None:
         """Draw all."""
-        self.draw_missing_notes()
-        self.draw_extra_notes_each()
-        self.draw_too_slow()
-        self.draw_too_fast()
-        self.draw_too_long()
-        self.draw_too_short()
+        counter = self.draw_missing_notes()
+        counter += self.draw_extra_notes_each()
+        counter += self.draw_too_slow()
+        counter += self.draw_too_fast()
+        counter += self.draw_too_long()
+        counter += self.draw_too_short()
+
+        if counter == 0:
+            rect = rect_container(
+                left=0, top=0,
+                right=self.tnr.svg_width, bottom=self.tnr.svg_height)
+            draw_centered_text(self.context, rect, self.perfect_message,
+                               red=self.perfect_red,
+                               green=self.perfect_green,
+                               blue=self.perfect_blue,
+                               alpha=self.perfect_alpha)
 
     def draw_missing_notes(self) -> int:
         """
