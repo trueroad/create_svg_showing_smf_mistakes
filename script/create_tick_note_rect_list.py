@@ -5,7 +5,7 @@ Create tick note rect list.
 
 https://github.com/trueroad/create_svg_showing_smf_mistakes
 
-Copyright (C) 2024 Masamichi Hosoda.
+Copyright (C) 2024, 2025 Masamichi Hosoda.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -70,6 +70,15 @@ class note_container:
     tick: int
     noteno: int
     point_and_click: point_and_click_container
+
+
+@dataclass(frozen=True)
+class top_bottom_noteno_container:
+    """Top bottom noteno container class."""
+
+    top: float
+    bottom: float
+    noteno: int
 
 
 class link_text:
