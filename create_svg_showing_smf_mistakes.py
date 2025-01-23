@@ -396,6 +396,16 @@ class mistakes:
         with cairo.SVGSurface(fobj, self.tnr.svg_width, self.tnr.svg_height
                               ) as surface:
             self.context = cairo.Context(surface)
+
+            # 画面クリア用マジックコマンド識別
+            if ((len(self.sd.foreval_filtered) == 4 and
+                 self.sd.foreval_filtered[0].note_on.note_event.note == 60 and
+                 self.sd.foreval_filtered[1].note_on.note_event.note == 61 and
+                 self.sd.foreval_filtered[2].note_on.note_event.note == 60 and
+                 self.sd.foreval_filtered[3].note_on.note_event.note == 61)):
+                # 何も描画しない（＝画面クリア）
+                return
+
             self.draw_all()
 
     def draw_notes(self) -> None:
