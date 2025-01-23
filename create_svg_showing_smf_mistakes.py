@@ -573,8 +573,11 @@ class mistakes:
             ticks_foreval = float(enc.foreval_abs_tick_after_extra -
                                   enc.foreval_abs_tick_before_extra)
             # 余計な音符の相対的な位置
-            relative = (enc.note.note_on.abs_tick -
-                        enc.foreval_abs_tick_before_extra) / ticks_foreval
+            if ticks_foreval < 1.0:
+                relative = 0.5
+            else:
+                relative = (enc.note.note_on.abs_tick -
+                            enc.foreval_abs_tick_before_extra) / ticks_foreval
             # 描画候補領域の幅
             area_width = area_right - area_left
 
