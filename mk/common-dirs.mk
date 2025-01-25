@@ -1,5 +1,5 @@
 # makeディレクトリ（このファイルがあるディレクトリ）
-MAKE_DIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
+MAKE_DIR ?= $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 
 # ベースディレクトリ
 BASE_DIR := $(realpath $(MAKE_DIR)/..)

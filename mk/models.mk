@@ -1,4 +1,8 @@
-# 各種ツール
+# makeディレクトリ（このファイルがあるディレクトリ）
+MAKE_DIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
+
+# 各種ディレクトリ・ツール
+include $(MAKE_DIR)/common-dirs.mk
 include $(MAKE_DIR)/common-tools.mk
 
 # モデル名（モデルソースディレクトリ中のディレクトリ名）
