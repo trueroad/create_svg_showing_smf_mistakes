@@ -1,7 +1,4 @@
 # モデルディレクトリ（このディレクトリ）
 MODEL_DIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 
-# テスト用評価対象の拡張子を除いたファイル名
-FOREVALS =
-
 include ../../mk/models.mk

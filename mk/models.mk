@@ -43,8 +43,22 @@ FOREVALS_MID = $(addsuffix .mid, $(FOREVALS))
 FOREVALS_PDF = $(addsuffix .pdf, $(FOREVALS))
 
 
+# .ly 中間ファイル
+INTERMEDIATE_LY = $(LAYOUT_STEM).ly $(MIDI_STEM).ly $(EVENT_STEM).ly
+
+# テスト用評価対象 .ly
+FOREVALS_LY = $(filter-out $(INTERMEDIATE_LY) $(MODEL_STEM).ly, \
+	$(wildcard *.ly))
+
+# テスト用評価対象 SMF
+FOREVALS_MID = $(FOREVALS_LY:.ly=.mid)
+
+# テスト用評価対象 PDF
+FOREVALS_PDF = $(FOREVALS_LY:.ly=.pdf)
+
+
 # 後で不要となる中間ファイル
-TARGET_INTERMEDIATE = $(LAYOUT_STEM).ly $(MIDI_STEM).ly $(EVENT_STEM).ly \
+TARGET_INTERMEDIATE = $(INTERMEDIATE_LY) \
 	$(CROPPED_PDF) \
 	$(LINK_TEXT) $(NOTES_TEXT)
 
