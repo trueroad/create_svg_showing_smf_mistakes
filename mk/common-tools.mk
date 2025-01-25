@@ -6,7 +6,7 @@ CREATE_TICK_NOTE_RECT_LIST = $(SCRIPT_DIR)/create_tick_note_rect_list.py
 
 MV = mv
 LN_S = ln -s
-RMDIR = rmdir
+RMDIR_P = rmdir -p
 INSTALL = install
 INSTALL_DATA = $(INSTALL) -m 644
 REALPATH_RELATIVE_TO = realpath --relative-to
