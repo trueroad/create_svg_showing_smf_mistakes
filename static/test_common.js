@@ -12,6 +12,7 @@
 //
 
 export const postUrl = "../midi/diffsvg";
+const modelsJsonUrl = "models/models.json";
 
 //
 // Element ID
@@ -20,6 +21,9 @@ export const postUrl = "../midi/diffsvg";
 // Button
 const loadButton = document.getElementById("loadButton");
 const clearButton = document.getElementById("clearButton");
+
+// Select
+const modelSelect = document.getElementById("modelSelect");
 
 // Div
 const imagesDiv = document.getElementById("imagesDiv");
@@ -93,6 +97,53 @@ function setImagesDivHeight() {
   imagesDiv.style.height = modelImg.offsetHeight + "px";
 }
 
+// 楽譜選択のプルダウンボックスを設定する
+function setupModelSelect() {
+  console.log("setupModelSelect");
+
+  fetch(modelsJsonUrl)
+    .then((resp) => {
+      console.log("resp.ok: ", resp.ok);
+      console.log("resp.status: ", resp.status);
+      console.log("resp.statusText: ", resp.statusText);
+      if(!resp.ok) {
+        // 通信は成功したがコードが不成功だったので後段のエラー処理へ投げる
+        throw new Error(`${resp.status} ${resp.statusText}`);
+      }
+      // レスポンスをJSONとして取り出して次に渡す
+      return resp.json();
+    })
+    .then((resp_json) => {
+      console.log(resp_json);
+
+      for (const phrase of resp_json["phrase_list"]) {
+        console.log(phrase);
+
+        let option = document.createElement("option");
+        option.text = phrase["title"];
+        option.value = phrase["name"];
+        modelSelect &&
+          modelSelect.appendChild(option);
+      }
+    })
+    .catch((reason) => {
+      // エラー発生
+      console.error(reason);
+    });
+}
+
+// 楽譜選択のプルダウンボックスが変更された
+function changeModelSelect() {
+  console.log("changeModelSelect");
+
+  // 選択された値を読み込んでテキストボックスを上書き、自動でロードする
+  const value = modelSelect.value;
+  if (value != "") {
+    modelName.value = value;
+    clickLoadButton();
+  }
+}
+
 //
 // Add event listener
 //
@@ -103,6 +154,10 @@ clearButton &&
   clearButton.addEventListener("click", clickClearButton);
 modelImg &&
   modelImg.addEventListener("load", setImagesDivHeight);
+modelSelect &&
+  modelSelect.addEventListener("change", changeModelSelect);
+
+setupModelSelect();
 
 if (modelImg.complete) {
   // モデルSVGの読み込みが完了済なら高さ調整を呼ぶ
