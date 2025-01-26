@@ -14,7 +14,7 @@ import {SmfEncoder} from "./tr-MidiJS/SmfEncoder.js";
 import {getISOStringTZ} from "./getISOStringTZ.js";
 
 import {
-  mistakesImg, forevalName, postResult, postUrl, revokeMistakeURL
+  mistakesImg, modelName, postResult, postUrl, revokeMistakeURL
 } from "./test_common.js";
 
 /**
@@ -159,7 +159,7 @@ async function _post_smf() {
   // Builds a form from the built SMF.
   const formData = new FormData();
   formData.append("foreval", blob, "foreval.mid");
-  formData.append("name", forevalName.value);
+  formData.append("name", modelName.value);
 
   try {
     const resp = await fetch(postUrl, {method: 'POST', body: formData});

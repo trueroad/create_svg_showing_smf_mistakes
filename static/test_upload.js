@@ -8,7 +8,7 @@
  */
 
 import {
-  mistakesImg, forevalName, postResult, postUrl, revokeMistakeURL
+  mistakesImg, modelName, postResult, postUrl, revokeMistakeURL
 } from "./test_common.js";
 
 //
@@ -43,7 +43,7 @@ function clickDiffButton() {
   // フォームを作成して選択されたファイルとモデル名を格納する
   const formData = new FormData();
   formData.append("foreval", file, "foreval.mid");
-  formData.append("name", forevalName.value);
+  formData.append("name", modelName.value);
 
   // APIへ作成したフォームをPOSTする
   fetch(postUrl, {method: "POST", body: formData})

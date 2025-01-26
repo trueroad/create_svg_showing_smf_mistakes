@@ -29,7 +29,7 @@ const modelImg = document.getElementById("modelImg");
 export const mistakesImg = document.getElementById("mistakesImg");
 
 // Input
-export const forevalName = document.getElementById("forevalName");
+export const modelName = document.getElementById("modelName");
 
 // Textarea
 export const postResult = document.getElementById("postResult");
@@ -56,7 +56,7 @@ function clickLoadButton() {
   clickClearButton();
 
   // モデル名を取得してモデルSVGを設定
-  const name = forevalName.value;
+  const name = modelName.value;
   modelImg.src = `models/${name}/model.svg`
 
   // イベントリスナでloadされたら高さ調整が走る
