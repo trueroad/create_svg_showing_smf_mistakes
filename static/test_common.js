@@ -94,7 +94,9 @@ function clickClearButton() {
 function setImagesDivHeight() {
   console.log("setImagesDivHeight");
 
-  imagesDiv.style.height = modelImg.offsetHeight + "px";
+  const rect = modelImg.getBoundingClientRect();
+  imagesDiv.style.height = rect.height + "px";
+  imagesDiv.style.width = rect.width + "px";
 }
 
 // 楽譜選択のプルダウンボックスを設定する
@@ -158,6 +160,11 @@ modelSelect &&
   modelSelect.addEventListener("change", changeModelSelect);
 
 setupModelSelect();
+
+modelImg.style.transformOrigin = "0 0";
+modelImg.style.transform = "scale(1.0) ";
+mistakesImg.style.transformOrigin = "0 0";
+mistakesImg.style.transform = "scale(1.0) ";
 
 if (modelImg.complete) {
   // モデルSVGの読み込みが完了済なら高さ調整を呼ぶ
