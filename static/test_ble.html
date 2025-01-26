@@ -39,7 +39,11 @@
 
     <h2>Score view</h2>
     <p>
-      <button id="clearButton">Clear diff</button>
+      <button id="clearButton">Clear diff</button><br/>
+      Zoom:
+      <input type="range" min="50" max="500" step="1" value="100"
+             id="zoomRange">
+      <input type="number" id="zoomFactor" name="zoom" value="100">%
     </p>
 
     <div id="imagesDiv" class="relative">

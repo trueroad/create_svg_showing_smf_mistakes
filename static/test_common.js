@@ -25,6 +25,9 @@ const clearButton = document.getElementById("clearButton");
 // Select
 const modelSelect = document.getElementById("modelSelect");
 
+// Range
+const zoomRange = document.getElementById("zoomRange");
+
 // Div
 const imagesDiv = document.getElementById("imagesDiv");
 
@@ -34,6 +37,7 @@ export const mistakesImg = document.getElementById("mistakesImg");
 
 // Input
 export const modelName = document.getElementById("modelName");
+const zoomFactor = document.getElementById("zoomFactor");
 
 // Textarea
 export const postResult = document.getElementById("postResult");
@@ -83,6 +87,37 @@ function clickClearButton() {
   mistakesImg.addEventListener("load", revokeMistakeURL);
 
   console.log("clickClearButton done");
+}
+
+// 楽譜ズームを設定する
+function setZoom(value) {
+  console.log("setZoom");
+
+  const factor = parseInt(value) / 100.0;
+  const transform = "scale(" + factor.toString() + ") ";
+
+  modelImg.style.transform = transform;
+  mistakesImg.style.transform = transform;
+
+  setImagesDivHeight();
+}
+
+// 楽譜ズームのスライダ変更中に呼ばれる
+function inputZoomRange() {
+  console.log("inputZoomRange");
+
+  const value = zoomRange.value;
+  zoomFactor.value = value;
+  setZoom(value);
+}
+
+// 楽譜ズーム数値入力の確定で呼ばれる
+function changeZoomFactor() {
+  console.log("changeZoomFactor");
+
+  const value = zoomFactor.value;
+  zoomRange.value = value;
+  setZoom(value);
 }
 
 // 楽譜表示部の子要素の高さを親要素にそのまま設定する
@@ -154,6 +189,10 @@ loadButton &&
   loadButton.addEventListener("click", clickLoadButton);
 clearButton &&
   clearButton.addEventListener("click", clickClearButton);
+zoomRange &&
+  zoomRange.addEventListener("input", inputZoomRange);
+zoomFactor &&
+  zoomFactor.addEventListener("change", changeZoomFactor);
 modelImg &&
   modelImg.addEventListener("load", setImagesDivHeight);
 modelSelect &&
