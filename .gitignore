@@ -12,4 +12,6 @@ post.bin
 *.layout.cropped.link.txt
 *.event-unnamed-staff.notes
 *.list.txt
+models.tar.zst
+models-*.tar.zst
 !static/spacer.svg

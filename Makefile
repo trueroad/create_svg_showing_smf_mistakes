@@ -1,3 +1,6 @@
+include mk/common-dirs.mk
+include mk/common-tools.mk
+
 # モデル SMF
 MODEL_MID = models/test/model.mid
 # モデルの tick 音符座標リスト
@@ -18,7 +21,7 @@ all: prepare $(TARGET)
 
 prepare: $(MODEL_MID) $(LIST_TEXT) $(MODEL_CONFIG) $(FOREVAL_MID)
 
-.PHONY: all clean prepare
+.PHONY: all clean prepare models-intermediate-tarball models-tarball
 
 CREATE_SVG_SHOWING_SMF_MISTAKES = ./create_svg_showing_smf_mistakes.py
 
@@ -35,3 +38,10 @@ $(MISTAKES_SVG): $(LIST_TEXT) $(MODEL_MID) $(MODEL_CONFIG) $(FOREVAL_MID)
 	$(CREATE_SVG_SHOWING_SMF_MISTAKES) \
 		$(MODEL_CONFIG) $(FOREVAL_MID) \
 		$@
+
+
+models-intermediate-tarball:
+	$(TAR_CVA_F) models-intermediate.tar.zst models_src/
+
+models-tarball:
+	$(TAR_CVA_F) models.tar.zst static/models/ models/
