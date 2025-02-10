@@ -704,6 +704,7 @@ class mistakes:
         counter: int = 0
         for nt in self.sd.note_timing:
             if nt.ratio_duration < self.min_duration_ratio:
+                counter += 1
                 draw_text(self.context,
                           self.tnr.note_dict[tick_noteno_container(
                               tick=nt.note_model.note_on.abs_tick,
