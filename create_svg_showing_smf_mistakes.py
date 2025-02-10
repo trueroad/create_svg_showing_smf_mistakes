@@ -286,13 +286,13 @@ class mistakes:
         self.context: cairo.Context
 
         # 遅すぎ検出スレッショルド
-        self.max_time_ratio: float = 1.2
+        self.max_time_ratio: float = 1.7
         # 速すぎ検出スレッショルド
-        self.min_time_ratio: float = 0.8
+        self.min_time_ratio: float = 0.7
         # 長すぎ検出スレッショルド
-        self.max_duration_ratio: float = 1.2
+        self.max_duration_ratio: float = 1.5
         # 短すぎ検出スレッショルド
-        self.min_duration_ratio: float = 0.8
+        self.min_duration_ratio: float = 0.5
 
         # 遅すぎ上方パディング（単位：符頭高さの倍数）
         self.too_slow_top_padding: float = 1.0
