@@ -21,7 +21,9 @@ all: prepare $(TARGET)
 
 prepare: $(MODEL_MID) $(LIST_TEXT) $(MODEL_CONFIG) $(FOREVAL_MID)
 
-.PHONY: all clean prepare models-intermediate-tarball models-tarball
+.PHONY: all clean prepare \
+	models-intermediate-tarball models-tarball \
+	clean-post
 
 CREATE_SVG_SHOWING_SMF_MISTAKES = ./create_svg_showing_smf_mistakes.py
 
@@ -45,3 +47,8 @@ models-intermediate-tarball:
 
 models-tarball:
 	$(TAR_CVA_F) models.tar.zst static/models/ models/
+
+clean-post:
+	-$(RM) post.bin
+	-$(RM) temp_*.mid
+	-$(RM) temp_*.svg
