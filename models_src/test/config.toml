@@ -13,10 +13,16 @@ min_time_ratio = 0.8
 max_duration_ratio = 1.2
 # 短すぎ検出スレッショルド
 min_duration_ratio = 0.8
+# テンポ速すぎ検出スレッショルド
+max_tempo_ratio = 1.2
+# テンポ遅すぎ検出スレッショルド
+min_tempo_ratio = 0.8
 
 [text]
 far_behind = "遅れすぎ"
 far_ahead = "早すぎ"
 too_long = "長すぎ"
 too_short = "短すぎ"
+tempo_too_fast = "テンポ速すぎ"
+tempo_too_slow = "テンポ遅すぎ"
 perfect = "すばらしい！"

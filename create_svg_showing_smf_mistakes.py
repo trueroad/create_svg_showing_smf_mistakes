@@ -293,6 +293,10 @@ class mistakes:
         self.max_duration_ratio: float = 1.5
         # 短すぎ検出スレッショルド
         self.min_duration_ratio: float = 0.5
+        # テンポ速すぎ検出スレッショルド
+        self.max_tempo_ratio: float = 2.0
+        # テンポ遅すぎ検出スレッショルド
+        self.min_tempo_ratio: float = 0.5
 
         # 遅れすぎ上方パディング（単位：符頭高さの倍数）
         self.far_behind_top_padding: float = 1.0
@@ -310,6 +314,10 @@ class mistakes:
         self.too_long_text: str = 'Too long'
         # 短すぎテキスト
         self.too_short_text: str = 'Too short'
+        # テンポ速すぎテキスト
+        self.tempo_too_fast: str = 'The tempo is too fast.'
+        # テンポ遅すぎテキスト
+        self.tempo_too_slow: str = 'The tempo is too slow.'
 
         # 左側にはみ出る際の余計な音符（個別）描画領域幅（単位：符頭幅の倍数）
         self.extra_note_row_left: float = 2.0
@@ -351,6 +359,12 @@ class mistakes:
         if self.cf.has_value('threshold', 'min_duration_ratio'):
             self.min_duration_ratio = self.cf.get_value_float(
                 'threshold', 'min_duration_ratio')
+        if self.cf.has_value('threshold', 'max_tempo_ratio'):
+            self.max_tempo_ratio = self.cf.get_value_float(
+                'threshold', 'max_tempo_ratio')
+        if self.cf.has_value('threshold', 'min_tempo_ratio'):
+            self.min_tempo_ratio = self.cf.get_value_float(
+                'threshold', 'min_tempo_ratio')
 
         if self.cf.has_value('text', 'far_behind'):
             self.far_behind_text = self.cf.get_value_str('text', 'far_behind')
@@ -360,6 +374,12 @@ class mistakes:
             self.too_long_text = self.cf.get_value_str('text', 'too_long')
         if self.cf.has_value('text', 'too_short'):
             self.too_short_text = self.cf.get_value_str('text', 'too_short')
+        if self.cf.has_value('text', 'tempo_too_fast'):
+            self.tempo_too_fast_text = self.cf.get_value_str(
+                'text', 'tempo_too_fast')
+        if self.cf.has_value('text', 'tempo_too_slow'):
+            self.tempo_too_slow_text = self.cf.get_value_str(
+                'text', 'tempo_too_slow')
 
         if self.cf.has_value('text', 'perfect'):
             self.perfect_message = self.cf.get_value_str('text', 'perfect')
@@ -436,6 +456,8 @@ class mistakes:
         counter += self.draw_far_ahead()
         counter += self.draw_too_long()
         counter += self.draw_too_short()
+        counter += self.draw_tempo_too_fast()
+        counter += self.draw_tempo_too_slow()
 
         if counter == 0:
             rect = rect_container(
@@ -711,6 +733,38 @@ class mistakes:
                               noteno=nt.note_model.note_on.note_event.note)],
                           self.too_short_text)
         return counter
+
+    def draw_tempo_too_fast(self) -> int:
+        """
+        テンポ速すぎを描画する.
+
+        Returns:
+          int: 0は速すぎない、1以上は速すぎる
+        """
+        if (1.0 / self.sd.time_ratio) > self.max_tempo_ratio:
+            draw_text(self.context,
+                      rect_container(left=0.0, top=0.0,
+                                     right=self.tnr.head_width,
+                                     bottom=self.tnr.head_height),
+                      self.tempo_too_fast_text)
+            return 1
+        return 0
+
+    def draw_tempo_too_slow(self) -> int:
+        """
+        テンポ遅すぎを描画する.
+
+        Returns:
+          int: 0は遅すぎない、1以上は遅すぎる
+        """
+        if (1.0 / self.sd.time_ratio) < self.min_tempo_ratio:
+            draw_text(self.context,
+                      rect_container(left=0.0, top=0.0,
+                                     right=self.tnr.head_width,
+                                     bottom=self.tnr.head_height),
+                      self.tempo_too_slow_text)
+            return 1
+        return 0
 
 
 def main() -> None:
