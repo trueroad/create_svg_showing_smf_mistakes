@@ -5,9 +5,9 @@ smf = "model.mid"
 list = "model.list.txt"
 
 [threshold]
-# 遅すぎ検出スレッショルド
+# 遅れすぎ検出スレッショルド
 max_time_ratio = 1.2
-# 速すぎ検出スレッショルド
+# 早すぎ検出スレッショルド
 min_time_ratio = 0.8
 # 長すぎ検出スレッショルド
 max_duration_ratio = 1.2
@@ -15,8 +15,8 @@ max_duration_ratio = 1.2
 min_duration_ratio = 0.8
 
 [text]
-too_slow = "遅すぎ"
-too_fast = "速すぎ"
+far_behind = "遅れすぎ"
+far_ahead = "早すぎ"
 too_long = "長すぎ"
 too_short = "短すぎ"
 perfect = "すばらしい！"

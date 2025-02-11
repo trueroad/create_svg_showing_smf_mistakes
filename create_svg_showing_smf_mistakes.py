@@ -285,27 +285,27 @@ class mistakes:
 
         self.context: cairo.Context
 
-        # 遅すぎ検出スレッショルド
+        # 遅れすぎ検出スレッショルド
         self.max_time_ratio: float = 1.7
-        # 速すぎ検出スレッショルド
+        # 早すぎ検出スレッショルド
         self.min_time_ratio: float = 0.7
         # 長すぎ検出スレッショルド
         self.max_duration_ratio: float = 1.5
         # 短すぎ検出スレッショルド
         self.min_duration_ratio: float = 0.5
 
-        # 遅すぎ上方パディング（単位：符頭高さの倍数）
-        self.too_slow_top_padding: float = 1.0
-        # 遅すぎ下方パディング（単位：符頭高さの倍数）
-        self.too_slow_bottom_padding: float = 0.0
-        # 遅すぎテキスト
-        self.too_slow_text: str = 'Too slow'
-        # 速すぎ上方パディング（単位：符頭高さの倍数）
-        self.too_fast_top_padding: float = 0.0
-        # 速すぎ下方パディング（単位：符頭高さの倍数）
-        self.too_fast_bottom_padding: float = 1.0
-        # 速すぎテキスト
-        self.too_fast_text: str = 'Too fast'
+        # 遅れすぎ上方パディング（単位：符頭高さの倍数）
+        self.far_behind_top_padding: float = 1.0
+        # 遅れすぎ下方パディング（単位：符頭高さの倍数）
+        self.far_behind_bottom_padding: float = 0.0
+        # 遅れすぎテキスト
+        self.far_behind_text: str = 'Far behind'
+        # 早すぎ上方パディング（単位：符頭高さの倍数）
+        self.far_ahead_top_padding: float = 0.0
+        # 早すぎ下方パディング（単位：符頭高さの倍数）
+        self.far_ahead_bottom_padding: float = 1.0
+        # 早すぎテキスト
+        self.far_ahead_text: str = 'Far ahead'
         # 長すぎテキスト
         self.too_long_text: str = 'Too long'
         # 短すぎテキスト
@@ -352,10 +352,10 @@ class mistakes:
             self.min_duration_ratio = self.cf.get_value_float(
                 'threshold', 'min_duration_ratio')
 
-        if self.cf.has_value('text', 'too_slow'):
-            self.too_slow_text = self.cf.get_value_str('text', 'too_slow')
-        if self.cf.has_value('text', 'too_fast'):
-            self.too_fast_text = self.cf.get_value_str('text', 'too_fast')
+        if self.cf.has_value('text', 'far_behind'):
+            self.far_behind_text = self.cf.get_value_str('text', 'far_behind')
+        if self.cf.has_value('text', 'far_ahead'):
+            self.far_ahead_text = self.cf.get_value_str('text', 'far_ahead')
         if self.cf.has_value('text', 'too_long'):
             self.too_long_text = self.cf.get_value_str('text', 'too_long')
         if self.cf.has_value('text', 'too_short'):
@@ -432,8 +432,8 @@ class mistakes:
         """Draw all."""
         counter = self.draw_missing_notes()
         counter += self.draw_extra_notes_each()
-        counter += self.draw_too_slow()
-        counter += self.draw_too_fast()
+        counter += self.draw_far_behind()
+        counter += self.draw_far_ahead()
         counter += self.draw_too_long()
         counter += self.draw_too_short()
 
@@ -610,70 +610,70 @@ class mistakes:
 
         return len(self.sd.extra_note)
 
-    def draw_too_slow(self) -> int:
+    def draw_far_behind(self) -> int:
         """
-        遅すぎを描画する.
+        遅れすぎを描画する.
 
         Returns:
-          int: 遅すぎな音符の数
+          int: 遅れすぎな音符の数
         """
-        too_slow_tick: set[int] = set()
+        far_behind_tick: set[int] = set()
         counter: int = 0
         for nt in self.sd.note_timing:
             if nt.ratio is not None and nt.ratio > self.max_time_ratio:
-                too_slow_tick.add(nt.note_model.note_on.abs_tick)
+                far_behind_tick.add(nt.note_model.note_on.abs_tick)
                 counter += 1
-        for tick in too_slow_tick:
+        for tick in far_behind_tick:
             rect = self.tnr.tick_rect_dict[tick]
             x = (rect.left + rect.right) / 2
             draw_line(self.context,
                       x,
                       rect.top -
-                      self.too_slow_top_padding * self.tnr.head_height,
+                      self.far_behind_top_padding * self.tnr.head_height,
                       x,
                       rect.bottom +
-                      self.too_slow_bottom_padding * self.tnr.head_height)
+                      self.far_behind_bottom_padding * self.tnr.head_height)
             rect_text = rect_container(
                 left=rect.left,
                 top=rect.top -
-                (self.too_slow_top_padding + 1) * self.tnr.head_height,
+                (self.far_behind_top_padding + 1) * self.tnr.head_height,
                 right=rect.right,
                 bottom=rect.top -
-                self.too_slow_top_padding * self.tnr.head_height)
-            draw_text(self.context, rect_text, self.too_slow_text)
+                self.far_behind_top_padding * self.tnr.head_height)
+            draw_text(self.context, rect_text, self.far_behind_text)
         return counter
 
-    def draw_too_fast(self) -> int:
+    def draw_far_ahead(self) -> int:
         """
-        速すぎを描画する.
+        早すぎを描画する.
 
         Returns:
-          int: 速すぎな音符の数
+          int: 早すぎな音符の数
         """
-        too_fast_tick: set[int] = set()
+        far_ahead_tick: set[int] = set()
         counter: int = 0
         for nt in self.sd.note_timing:
             if nt.ratio is not None and nt.ratio < self.min_time_ratio:
-                too_fast_tick.add(nt.note_model.note_on.abs_tick)
+                far_ahead_tick.add(nt.note_model.note_on.abs_tick)
                 counter += 1
-        for tick in too_fast_tick:
+        for tick in far_ahead_tick:
             rect = self.tnr.tick_rect_dict[tick]
             x = (rect.left + rect.right) / 2
             draw_line(self.context,
                       x,
                       rect.top -
-                      self.too_fast_top_padding * self.tnr.head_height,
+                      self.far_ahead_top_padding * self.tnr.head_height,
                       x,
                       rect.bottom +
-                      self.too_fast_bottom_padding * self.tnr.head_height)
+                      self.far_ahead_bottom_padding * self.tnr.head_height)
             rect_text = rect_container(
                 left=rect.left,
                 top=rect.bottom +
-                self.too_fast_bottom_padding * self.tnr.head_height,
+                self.far_ahead_bottom_padding * self.tnr.head_height,
                 right=rect.right,
                 bottom=rect.bottom +
-                (self.too_fast_bottom_padding + 1) * self.tnr.head_height)
-            draw_text(self.context, rect_text, self.too_fast_text)
+                (self.far_ahead_bottom_padding + 1) * self.tnr.head_height)
+            draw_text(self.context, rect_text, self.far_ahead_text)
         return counter
 
     def draw_too_long(self) -> int:
