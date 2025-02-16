@@ -1,6 +1,6 @@
 % 音符1つあるが対応する音符無し
 
-\version "2.24.3"
+\version "2.24.4"
 
 \include "articulate.ly"
 \pointAndClickOff

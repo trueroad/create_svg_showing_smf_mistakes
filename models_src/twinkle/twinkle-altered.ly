@@ -4,7 +4,7 @@
 % Based on
 % https://gist.github.com/trueroad/01353cff1b7079be44e05901832dfbae
 
-\version "2.24.3"
+\version "2.24.4"
 
 \include "articulate.ly"
 \pointAndClickOff
