@@ -1,0 +1,29 @@
+title = "テスト（アドバイス版）"
+
+[model]
+smf = "model.mid"
+list = "model.list.txt"
+
+[threshold]
+# 遅れすぎ検出スレッショルド
+max_time_ratio = 1.2
+# 早すぎ検出スレッショルド
+min_time_ratio = 0.8
+# 長すぎ検出スレッショルド
+max_duration_ratio = 1.2
+# 短すぎ検出スレッショルド
+min_duration_ratio = 0.8
+# テンポ速すぎ検出スレッショルド
+max_tempo_ratio = 1.2
+# テンポ遅すぎ検出スレッショルド
+min_tempo_ratio = 0.8
+
+[text]
+missing = "弾く"
+far_behind = "早く"
+far_ahead = "遅く"
+too_long = "短く"
+too_short = "長く"
+tempo_too_fast = "テンポ遅く"
+tempo_too_slow = "テンポ速く"
+perfect = "すばらしい！"
