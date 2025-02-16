@@ -6,6 +6,7 @@ list = "model.list.txt"
 
 [text]
 missing = "" # 空文字列はバツ印
+extra = "余計" # 空文字列は文字なし
 far_behind = "遅れすぎ"
 far_ahead = "早すぎ"
 too_long = "長すぎ"

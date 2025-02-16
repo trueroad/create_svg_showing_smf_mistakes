@@ -20,6 +20,7 @@ min_tempo_ratio = 0.8
 
 [text]
 missing = "弾く"
+extra = "弾かない"
 far_behind = "早く"
 far_ahead = "遅く"
 too_long = "短く"

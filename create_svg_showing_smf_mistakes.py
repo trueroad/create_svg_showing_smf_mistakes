@@ -288,6 +288,8 @@ class mistakes:
 
         # 欠落テキスト（空文字列はテキストでなくバツ印にするという意味）
         self.missing_text: str = ''
+        # 余計テキスト（空文字列は文字表示しないという意味）
+        self.extra_text: str = 'Unwanted'
 
         # 遅れすぎ検出スレッショルド
         self.max_time_ratio: float = 1.7
@@ -353,6 +355,8 @@ class mistakes:
 
         if self.cf.has_value('text', 'missing'):
             self.missing_text = self.cf.get_value_str('text', 'missing')
+        if self.cf.has_value('text', 'extra'):
+            self.extra_text = self.cf.get_value_str('text', 'extra')
 
         if self.cf.has_value('threshold', 'max_time_ratio'):
             self.max_time_ratio = self.cf.get_value_float(
@@ -639,6 +643,18 @@ class mistakes:
                 right=right + self.tnr.head_width * 0.5,
                 bottom=bottom + self.tnr.head_height * 0.5)
             draw_ellipse(self.context, rect)
+
+            if self.extra_text != '':
+                top_bottom = (rect.top + rect.bottom) / 2.0
+                rect_text = rect_container(
+                    left=rect.left,
+                    top=top_bottom - self.tnr.head_height * 0.5,
+                    right=rect.right,
+                    bottom=top_bottom + self.tnr.head_height * 0.5)
+                draw_centered_text(self.context, rect_text,
+                                   self.extra_text,
+                                   1, 0, 0, 0.9,
+                                   False)
 
         return len(self.sd.extra_note)
 
