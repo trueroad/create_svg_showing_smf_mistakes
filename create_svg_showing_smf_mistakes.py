@@ -285,6 +285,9 @@ class mistakes:
 
         self.context: cairo.Context
 
+        # 欠落テキスト（空文字列はテキストでなくバツ印にするという意味）
+        self.missing_text: str = ''
+
         # 遅れすぎ検出スレッショルド
         self.max_time_ratio: float = 1.7
         # 早すぎ検出スレッショルド
@@ -346,6 +349,9 @@ class mistakes:
         """Load model config."""
         if not self.cf.load_config_file(filename):
             return False
+
+        if self.cf.has_value('text', 'missing'):
+            self.missing_text = self.cf.get_value_str('text', 'missing')
 
         if self.cf.has_value('threshold', 'max_time_ratio'):
             self.max_time_ratio = self.cf.get_value_float(
@@ -482,7 +488,10 @@ class mistakes:
                 tick=nc.note_on.abs_tick,
                 noteno=nc.note_on.note_event.note)]
             # pprint.pprint(rect)
-            draw_cross(self.context, rect)
+            if self.missing_text == '':
+                draw_cross(self.context, rect)
+            else:
+                draw_text(self.context, rect, self.missing_text)
         return len(self.sd.missing_note)
 
     def draw_extra_notes_cluster(self) -> int:
