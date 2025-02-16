@@ -268,9 +268,9 @@ def draw_centered_text(context: cairo.Context,
         context.set_font_size(font_size)
         te = context.text_extents(text)
 
-    context.move_to((rect.right - rect.left) / 2.0 -
+    context.move_to((rect.right + rect.left) / 2.0 -
                     te.width / 2.0 - te.x_bearing,
-                    (rect.bottom - rect.top) / 2.0 -
+                    (rect.bottom + rect.top) / 2.0 -
                     te.height / 2.0 - te.y_bearing)
     context.show_text(text)
 
