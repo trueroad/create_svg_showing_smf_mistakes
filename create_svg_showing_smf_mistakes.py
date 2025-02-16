@@ -251,17 +251,18 @@ def draw_centered_text(context: cairo.Context,
                        red: float = 1.0,
                        green: float = 0.0,
                        blue: float = 0.0,
-                       alpha: float = 1.0) -> None:
+                       alpha: float = 1.0,
+                       b_draw_inside: bool = True) -> None:
     """Draw centered text."""
     context.select_font_face('sans-serif')
     context.set_source_rgba(red, green, blue, alpha)
 
-    # いったんSVG高さをフォントサイズに設定する
+    # いったん高さをフォントサイズに設定する
     font_size = rect.bottom - rect.top
     context.set_font_size(font_size)
 
     te = context.text_extents(text)
-    if te.width > (rect.right - rect.left):
+    if b_draw_inside and te.width > (rect.right - rect.left):
         # テキストの方が横長なのでフォントサイズを調整
         font_size = font_size * (rect.right - rect.left) / te.width
         context.set_font_size(font_size)
