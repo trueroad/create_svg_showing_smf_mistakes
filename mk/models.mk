@@ -29,6 +29,8 @@ CROPPED_SVG = $(MODEL_STEM).svg
 MODEL_MID = $(MODEL_STEM).mid
 # モデル WAV
 MODEL_48K_MONO_WAV = $(MODEL_STEM).48k-mono.wav
+# モデル WebM
+MODEL_WEBM = $(MODEL_STEM).webm
 
 # モデル PDF から得る CropBox とリンク情報のテキストファイル
 LINK_TEXT = $(LAYOUT_STEM).cropped.link.txt
@@ -66,7 +68,7 @@ TARGET_INTERMEDIATE = $(INTERMEDIATE_LY) \
 	$(MODEL_48K_MONO_WAV)
 
 # ターゲットのうちユーザに見せる（static ディレクトリに入れる）もの
-TARGET_STATIC_MODEL = $(CROPPED_SVG)
+TARGET_STATIC_MODEL = $(CROPPED_SVG) $(MODEL_WEBM)
 
 # ターゲットのうちシステムだけが使うもの
 TARGET_MODEL = $(MODEL_MID) $(LIST_TEXT)
@@ -159,6 +161,10 @@ $(EVENT_STEM).ly: $(LY_DIR)/$(EVENT_STEM).ly
 # モデル WAV
 %.48k-mono.wav: %.mid
 	$(TIMIDITY_48K_MONO) $< -o $@
+
+# モデル WebM (Opus)
+%.webm: %.48k-mono.wav
+	$(FFMPEG) -i $< $(FFMPEG_OPTION_WEBM_OPUS) $@
 
 # LilyPond で評価対象 SMF と PDF を出力する
 %.mid %.pdf: %.ly

@@ -19,3 +19,12 @@ TIMIDITY_48K_MONO = timidity \
 	--volume-compensation \
 	-s 48000 -Ow --output-mono \
 	--output-signed --output-16bit --output-linear
+FFMPEG = ffmpeg
+FFMPEG_OPTION_WEBM_OPUS = \
+	-hide_banner \
+	-y \
+	-vn \
+	-codec:a libopus \
+	-b:a 96K \
+	-application audio \
+	-f webm
