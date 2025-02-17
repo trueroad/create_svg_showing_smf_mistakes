@@ -27,6 +27,8 @@ CROPPED_PDF = $(LAYOUT_STEM).cropped.pdf
 CROPPED_SVG = $(MODEL_STEM).svg
 # モデル SMF
 MODEL_MID = $(MODEL_STEM).mid
+# モデル WAV
+MODEL_48K_MONO_WAV = $(MODEL_STEM).48k-mono.wav
 
 # モデル PDF から得る CropBox とリンク情報のテキストファイル
 LINK_TEXT = $(LAYOUT_STEM).cropped.link.txt
@@ -60,7 +62,8 @@ FOREVALS_PDF = $(FOREVALS_LY:.ly=.pdf)
 # 後で不要となる中間ファイル
 TARGET_INTERMEDIATE = $(INTERMEDIATE_LY) \
 	$(CROPPED_PDF) \
-	$(LINK_TEXT) $(NOTES_TEXT)
+	$(LINK_TEXT) $(NOTES_TEXT) \
+	$(MODEL_48K_MONO_WAV)
 
 # ターゲットのうちユーザに見せる（static ディレクトリに入れる）もの
 TARGET_STATIC_MODEL = $(CROPPED_SVG)
@@ -152,6 +155,10 @@ $(EVENT_STEM).ly: $(LY_DIR)/$(EVENT_STEM).ly
 # モデルの tick 音符座標リストを出力する
 %.list.txt: %.mid %.layout.cropped.link.txt %.event-unnamed-staff.notes
 	$(CREATE_TICK_NOTE_RECT_LIST) $^ $@
+
+# モデル WAV
+%.48k-mono.wav: %.mid
+	$(TIMIDITY_48K_MONO) $< -o $@
 
 # LilyPond で評価対象 SMF と PDF を出力する
 %.mid %.pdf: %.ly

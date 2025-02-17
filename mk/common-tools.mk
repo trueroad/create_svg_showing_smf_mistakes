@@ -15,3 +15,7 @@ REALPATH_RELATIVE_TO = realpath --relative-to
 FIND = find
 TAR = tar
 TAR_CVA_F = $(TAR) -cva -f
+TIMIDITY_48K_MONO = timidity \
+	--volume-compensation \
+	-s 48000 -Ow --output-mono \
+	--output-signed --output-16bit --output-linear
