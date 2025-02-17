@@ -39,6 +39,9 @@ export const mistakesImg = document.getElementById("mistakesImg");
 export const modelName = document.getElementById("modelName");
 const zoomFactor = document.getElementById("zoomFactor");
 
+// Audio
+const sampleAudio = document.getElementById("sampleAudio");
+
 // Textarea
 export const postResult = document.getElementById("postResult");
 
@@ -63,9 +66,10 @@ function clickLoadButton() {
   // 表示差分をクリアする
   clickClearButton();
 
-  // モデル名を取得してモデルSVGを設定
+  // モデル名を取得してモデルSVGとモデルWebMを設定
   const name = modelName.value;
   modelImg.src = `models/${name}/model.svg`
+  sampleAudio.src = `models/${name}/model.webm`
 
   // イベントリスナでloadされたら高さ調整が走る
 
