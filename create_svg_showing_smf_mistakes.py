@@ -233,16 +233,24 @@ def draw_line(context: cairo.Context,
 
 def draw_text(context: cairo.Context,
               rect: rect_container, text: str,
-              font_face: str) -> None:
+              font_face: str,
+              red: float = 1.0,
+              green: float = 0.0,
+              blue: float = 0.0,
+              alpha: float = 0.9) -> None:
     """Draw text."""
     context.select_font_face(font_face)
+    context.set_source_rgba(red, green, blue, alpha)
+
+    # rectの高さをフォントサイズにする
     context.set_font_size(rect.bottom - rect.top)
-    context.set_source_rgba(1, 0, 0, 0.9)
+
     # 指定した座標がベースラインの左端になる
-    # よくあるフォントはベースラインの上が 0.88 下が 0.12 あるので、
-    # rectの上下ピッタリに合わせるには以下のようにする。
-    # （和文フォントはだいたい合うが欧文はフォントや環境次第）
-    context.move_to(rect.left, rect.top + (rect.bottom - rect.top) * 0.88)
+    # rectの上下ピッタリに合わせるために、
+    # 左上端からベースラインまでの高さ下げたところを指定する
+    te = context.text_extents(text)
+
+    context.move_to(rect.left, rect.top - te.y_bearing)
     context.show_text(text)
 
 
@@ -259,7 +267,7 @@ def draw_centered_text(context: cairo.Context,
     context.select_font_face(font_face)
     context.set_source_rgba(red, green, blue, alpha)
 
-    # いったん高さをフォントサイズに設定する
+    # いったんrectの高さをフォントサイズに設定する
     font_size = rect.bottom - rect.top
     context.set_font_size(font_size)
 
