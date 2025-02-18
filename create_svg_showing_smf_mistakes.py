@@ -232,9 +232,10 @@ def draw_line(context: cairo.Context,
 
 
 def draw_text(context: cairo.Context,
-              rect: rect_container, text: str) -> None:
+              rect: rect_container, text: str,
+              font_face: str) -> None:
     """Draw text."""
-    context.select_font_face('sans-serif')
+    context.select_font_face(font_face)
     context.set_font_size(rect.bottom - rect.top)
     context.set_source_rgba(1, 0, 0, 0.9)
     # 指定した座標がベースラインの左端になる
@@ -248,13 +249,14 @@ def draw_text(context: cairo.Context,
 def draw_centered_text(context: cairo.Context,
                        rect: rect_container,
                        text: str,
+                       font_face: str,
                        red: float = 1.0,
                        green: float = 0.0,
                        blue: float = 0.0,
                        alpha: float = 1.0,
                        b_draw_inside: bool = True) -> None:
     """Draw centered text."""
-    context.select_font_face('sans-serif')
+    context.select_font_face(font_face)
     context.set_source_rgba(red, green, blue, alpha)
 
     # いったん高さをフォントサイズに設定する
@@ -285,6 +287,9 @@ class mistakes:
         self.cf: config_file.config_file = config_file.config_file()
 
         self.context: cairo.Context
+
+        # フォント名
+        self.font_face: str = 'sans-serif'
 
         # 欠落テキスト（空文字列はテキストでなくバツ印にするという意味）
         self.missing_text: str = ''
@@ -352,6 +357,9 @@ class mistakes:
         """Load model config."""
         if not self.cf.load_config_file(filename):
             return False
+
+        if self.cf.has_value('text', 'font_face'):
+            self.font_face = self.cf.get_value_str('text', 'font_face')
 
         if self.cf.has_value('text', 'missing'):
             self.missing_text = self.cf.get_value_str('text', 'missing')
@@ -475,6 +483,7 @@ class mistakes:
                 left=0, top=0,
                 right=self.tnr.svg_width, bottom=self.tnr.svg_height)
             draw_centered_text(self.context, rect, self.perfect_message,
+                               self.font_face,
                                red=self.perfect_red,
                                green=self.perfect_green,
                                blue=self.perfect_blue,
@@ -496,7 +505,8 @@ class mistakes:
             if self.missing_text == '':
                 draw_cross(self.context, rect)
             else:
-                draw_text(self.context, rect, self.missing_text)
+                draw_text(self.context, rect, self.missing_text,
+                          self.font_face)
         return len(self.sd.missing_note)
 
     def draw_extra_notes_cluster(self) -> int:
@@ -653,6 +663,7 @@ class mistakes:
                     bottom=top_bottom + self.tnr.head_height * 0.5)
                 draw_centered_text(self.context, rect_text,
                                    self.extra_text,
+                                   self.font_face,
                                    1, 0, 0, 0.9,
                                    False)
 
@@ -688,7 +699,8 @@ class mistakes:
                 right=rect.right,
                 bottom=rect.top -
                 self.far_behind_top_padding * self.tnr.head_height)
-            draw_text(self.context, rect_text, self.far_behind_text)
+            draw_text(self.context, rect_text, self.far_behind_text,
+                      self.font_face)
         return counter
 
     def draw_far_ahead(self) -> int:
@@ -721,7 +733,8 @@ class mistakes:
                 right=rect.right,
                 bottom=rect.bottom +
                 (self.far_ahead_bottom_padding + 1) * self.tnr.head_height)
-            draw_text(self.context, rect_text, self.far_ahead_text)
+            draw_text(self.context, rect_text, self.far_ahead_text,
+                      self.font_face)
         return counter
 
     def draw_too_long(self) -> int:
@@ -739,7 +752,8 @@ class mistakes:
                           self.tnr.note_dict[tick_noteno_container(
                               tick=nt.note_model.note_on.abs_tick,
                               noteno=nt.note_model.note_on.note_event.note)],
-                          self.too_long_text)
+                          self.too_long_text,
+                          self.font_face)
         return counter
 
     def draw_too_short(self) -> int:
@@ -757,7 +771,8 @@ class mistakes:
                           self.tnr.note_dict[tick_noteno_container(
                               tick=nt.note_model.note_on.abs_tick,
                               noteno=nt.note_model.note_on.note_event.note)],
-                          self.too_short_text)
+                          self.too_short_text,
+                          self.font_face)
         return counter
 
     def draw_tempo_too_fast(self) -> int:
@@ -772,7 +787,8 @@ class mistakes:
                       rect_container(left=0.0, top=0.0,
                                      right=self.tnr.head_width,
                                      bottom=self.tnr.head_height),
-                      self.tempo_too_fast_text)
+                      self.tempo_too_fast_text,
+                      self.font_face)
             return 1
         return 0
 
@@ -788,7 +804,8 @@ class mistakes:
                       rect_container(left=0.0, top=0.0,
                                      right=self.tnr.head_width,
                                      bottom=self.tnr.head_height),
-                      self.tempo_too_slow_text)
+                      self.tempo_too_slow_text,
+                      self.font_face)
             return 1
         return 0
 
