@@ -103,10 +103,10 @@ install: $(TARGET)
 
 uninstall:
 	$(RM) $(addprefix $(DEST_MODELS_DIR)/$(MODEL_NAME)/, $(INSTALL_MODEL))
-	-$(RMDIR_P) $(DEST_MODELS_DIR)/$(MODEL_NAME)/
+	-(cd $(DEST_MODELS_DIR) && $(RMDIR_P) $(MODEL_NAME))
 	$(RM) $(addprefix $(DEST_STATIC_MODELS_DIR)/$(MODEL_NAME)/, \
 		$(INSTALL_STATIC_MODEL))
-	-$(RMDIR_P) $(DEST_STATIC_MODELS_DIR)/$(MODEL_NAME)/
+	-(cd $(DEST_STATIC_MODELS_DIR) && $(RMDIR_P) $(MODEL_NAME))
 
 
 # モデルの include 元となる .ly

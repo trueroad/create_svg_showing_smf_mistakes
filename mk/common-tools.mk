@@ -8,6 +8,7 @@ BUILD_MODELS_JSON = $(SCRIPT_DIR)/build_models_json.py
 
 MV = mv
 LN_S = ln -s
+RMDIR = rmdir
 RMDIR_P = rmdir -p
 INSTALL = install
 INSTALL_DATA = $(INSTALL) -m 644
