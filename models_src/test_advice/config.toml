@@ -13,10 +13,14 @@ max_time_diff = 0.125
 min_time_ratio = 0.8
 # 早すぎ検出スレッショルド（テンポ補正後Inter-Onset Interval (IOI)差分・秒）
 min_time_diff = -0.625
-# 長すぎ検出スレッショルド
+# 長すぎ検出スレッショルド（テンポ補正後の比）
 max_duration_ratio = 1.2
-# 短すぎ検出スレッショルド
+# 長すぎ検出スレッショルド（テンポ補正後の差分・単位秒）
+max_duration_diff = 0.0625
+# 短すぎ検出スレッショルド（テンポ補正後の比）
 min_duration_ratio = 0.8
+# 短すぎ検出スレッショルド（テンポ補正後の差分・単位秒）
+min_duration_diff = -0.03125
 # テンポ速すぎ検出スレッショルド
 max_tempo_ratio = 1.2
 # テンポ遅すぎ検出スレッショルド

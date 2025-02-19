@@ -312,10 +312,14 @@ class mistakes:
         self.min_time_ratio: float = 0.7
         # 早すぎ検出スレッショルド（テンポ補正後のIOI差分・単位秒）
         self.min_time_diff: float = -0.125
-        # 長すぎ検出スレッショルド
+        # 長すぎ検出スレッショルド（テンポ補正後の比）
         self.max_duration_ratio: float = 1.5
-        # 短すぎ検出スレッショルド
+        # 長すぎ検出スレッショルド（テンポ補正後の差分・単位秒）
+        self.max_duration_diff: float = 0.125
+        # 短すぎ検出スレッショルド（テンポ補正後の比）
         self.min_duration_ratio: float = 0.5
+        # 短すぎ検出スレッショルド（テンポ補正後の差分・単位秒）
+        self.min_duration_diff: float = -0.0625
         # テンポ速すぎ検出スレッショルド
         self.max_tempo_ratio: float = 2.0
         # テンポ遅すぎ検出スレッショルド
@@ -390,12 +394,20 @@ class mistakes:
         if self.cf.has_value('threshold', 'min_time_diff'):
             self.min_time_diff = self.cf.get_value_float(
                 'threshold', 'min_time_diff')
+
         if self.cf.has_value('threshold', 'max_duration_ratio'):
             self.max_duration_ratio = self.cf.get_value_float(
                 'threshold', 'max_duration_ratio')
+        if self.cf.has_value('threshold', 'max_duration_diff'):
+            self.max_duration_diff = self.cf.get_value_float(
+                'threshold', 'max_duration_diff')
         if self.cf.has_value('threshold', 'min_duration_ratio'):
             self.min_duration_ratio = self.cf.get_value_float(
                 'threshold', 'min_duration_ratio')
+        if self.cf.has_value('threshold', 'min_duration_diff'):
+            self.min_duration_diff = self.cf.get_value_float(
+                'threshold', 'min_duration_diff')
+
         if self.cf.has_value('threshold', 'max_tempo_ratio'):
             self.max_tempo_ratio = self.cf.get_value_float(
                 'threshold', 'max_tempo_ratio')
@@ -766,7 +778,8 @@ class mistakes:
         """
         counter: int = 0
         for nt in self.sd.note_timing:
-            if nt.ratio_duration > self.max_duration_ratio:
+            if nt.ratio_duration > self.max_duration_ratio and \
+               nt.diff_duration > self.max_duration_diff:
                 counter += 1
                 draw_text(self.context,
                           self.tnr.note_dict[tick_noteno_container(
@@ -785,7 +798,8 @@ class mistakes:
         """
         counter: int = 0
         for nt in self.sd.note_timing:
-            if nt.ratio_duration < self.min_duration_ratio:
+            if nt.ratio_duration < self.min_duration_ratio and \
+               nt.diff_duration < self.min_duration_diff:
                 counter += 1
                 draw_text(self.context,
                           self.tnr.note_dict[tick_noteno_container(
