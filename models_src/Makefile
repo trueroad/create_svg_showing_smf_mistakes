@@ -15,10 +15,14 @@ MODELS_JSON = models.json
 
 .PHONY:	all clean install uninstall $(MODEL_DIRS)
 
-all: $(MODEL_DIRS) $(MODELS_JSON)
+all: $(MODEL_DIRS) $(MODEL_GITIGNORES) $(MODELS_JSON)
 
-$(MODEL_MAKEFILES) $(MODEL_GITIGNORES): template.mk
+$(MODEL_MAKEFILES): template.mk
 	$(BUILD_MODEL_MAKEFILE) $< $(MAKE_DIR) $(dir $@)
+
+$(MODEL_GITIGNORES):
+	echo "Makefile" > $@
+	echo ".gitignore" >> $@
 
 $(MODEL_DIRS): $(MODEL_MAKEFILES)
 	$(MAKE) -C $@ $(MAKECMDGOALS)

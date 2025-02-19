@@ -41,7 +41,6 @@ from typing import Final
 
 REPLACE_STR: Final[str] = '@MAKE_DIR@'
 MAKEFILE_FILENAME: Final[Path] = Path('Makefile')
-GITIGNORE_FILENAME: Final[Path] = Path('.gitignore')
 
 
 def relative_to_walk_up(start: Path, target: Path) -> Path:
@@ -73,7 +72,6 @@ def main() -> None:
     makefile_dir = Path(sys.argv[3]).resolve()
 
     makefile_path = makefile_dir / MAKEFILE_FILENAME
-    gitignore_path = makefile_dir / GITIGNORE_FILENAME
 
     # Python 3.12
     # relative = make_dir.relative_to(makefile_dir, walk_up=True)
@@ -86,10 +84,6 @@ def main() -> None:
             for line in fin:
                 print(line.replace(REPLACE_STR, str(relative)),
                       end='', file=fout)
-
-    with open(gitignore_path, 'w') as fout:
-        print(str(MAKEFILE_FILENAME), file=fout)
-        print(str(GITIGNORE_FILENAME), file=fout)
 
 
 if __name__ == '__main__':
