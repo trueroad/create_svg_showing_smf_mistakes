@@ -304,10 +304,14 @@ class mistakes:
         # 余計テキスト（空文字列は文字表示しないという意味）
         self.extra_text: str = 'Unwanted'
 
-        # 遅れすぎ検出スレッショルド
+        # 遅れすぎ検出スレッショルド（テンポ補正後のIOI比）
         self.max_time_ratio: float = 1.7
-        # 早すぎ検出スレッショルド
+        # 遅れすぎ検出スレッショルド（テンポ補正後のIOI差分・単位秒）
+        self.max_time_diff: float = 0.25
+        # 早すぎ検出スレッショルド（テンポ補正後のIOI比）
         self.min_time_ratio: float = 0.7
+        # 早すぎ検出スレッショルド（テンポ補正後のIOI差分・単位秒）
+        self.min_time_diff: float = -0.125
         # 長すぎ検出スレッショルド
         self.max_duration_ratio: float = 1.5
         # 短すぎ検出スレッショルド
@@ -377,9 +381,15 @@ class mistakes:
         if self.cf.has_value('threshold', 'max_time_ratio'):
             self.max_time_ratio = self.cf.get_value_float(
                 'threshold', 'max_time_ratio')
+        if self.cf.has_value('threshold', 'max_time_diff'):
+            self.max_time_diff = self.cf.get_value_float(
+                'threshold', 'max_time_diff')
         if self.cf.has_value('threshold', 'min_time_ratio'):
             self.min_time_ratio = self.cf.get_value_float(
                 'threshold', 'min_time_ratio')
+        if self.cf.has_value('threshold', 'min_time_diff'):
+            self.min_time_diff = self.cf.get_value_float(
+                'threshold', 'min_time_diff')
         if self.cf.has_value('threshold', 'max_duration_ratio'):
             self.max_duration_ratio = self.cf.get_value_float(
                 'threshold', 'max_duration_ratio')
@@ -687,7 +697,8 @@ class mistakes:
         far_behind_tick: set[int] = set()
         counter: int = 0
         for nt in self.sd.note_timing:
-            if nt.ratio is not None and nt.ratio > self.max_time_ratio:
+            if nt.ratio is not None and nt.ratio > self.max_time_ratio and \
+               nt.diff is not None and nt.diff > self.max_time_diff:
                 far_behind_tick.add(nt.note_model.note_on.abs_tick)
                 counter += 1
         for tick in far_behind_tick:
@@ -721,7 +732,8 @@ class mistakes:
         far_ahead_tick: set[int] = set()
         counter: int = 0
         for nt in self.sd.note_timing:
-            if nt.ratio is not None and nt.ratio < self.min_time_ratio:
+            if nt.ratio is not None and nt.ratio < self.min_time_ratio and \
+               nt.diff is not None and nt.diff < self.min_time_diff:
                 far_ahead_tick.add(nt.note_model.note_on.abs_tick)
                 counter += 1
         for tick in far_ahead_tick:

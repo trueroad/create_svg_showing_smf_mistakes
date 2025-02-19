@@ -5,10 +5,14 @@ smf = "model.mid"
 list = "model.list.txt"
 
 [threshold]
-# 遅れすぎ検出スレッショルド
+# 遅れすぎ検出スレッショルド（テンポ補正後Inter-Onset Interval (IOI)比）
 max_time_ratio = 1.2
-# 早すぎ検出スレッショルド
+# 遅れすぎ検出スレッショルド（テンポ補正後Inter-Onset Interval (IOI)差分・秒）
+max_time_diff = 0.125
+# 早すぎ検出スレッショルド（テンポ補正後Inter-Onset Interval (IOI)比）
 min_time_ratio = 0.8
+# 早すぎ検出スレッショルド（テンポ補正後Inter-Onset Interval (IOI)差分・秒）
+min_time_diff = -0.625
 # 長すぎ検出スレッショルド
 max_duration_ratio = 1.2
 # 短すぎ検出スレッショルド
