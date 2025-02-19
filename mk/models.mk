@@ -167,5 +167,5 @@ $(EVENT_STEM).ly: $(LY_DIR)/$(EVENT_STEM).ly
 	$(FFMPEG) -i $< $(FFMPEG_OPTION_WEBM_OPUS) $@
 
 # LilyPond で評価対象 SMF と PDF を出力する
-%.mid %.pdf: %.ly
+%.mid %.pdf &: %.ly
 	$(LILYPOND) -dmidi-extension=mid $<

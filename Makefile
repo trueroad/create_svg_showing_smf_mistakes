@@ -27,8 +27,10 @@ prepare: $(MODEL_MID) $(LIST_TEXT) $(MODEL_CONFIG) $(FOREVAL_MID)
 
 CREATE_SVG_SHOWING_SMF_MISTAKES = ./create_svg_showing_smf_mistakes.py
 
-$(MODEL_MID) $(LIST_TEXT) $(MODEL_CONFIG) $(FOREVAL_MID):
+$(FOREVAL_MID):
 	$(MAKE) -C models_src
+
+$(MODEL_MID) $(LIST_TEXT) $(MODEL_CONFIG) &: $(FOREVAL_MID)
 	$(MAKE) -C models_src install
 
 
