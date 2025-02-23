@@ -18,7 +18,7 @@ MODELS_JSON = models.json
 all: $(MODEL_DIRS) $(MODEL_GITIGNORES) $(MODELS_JSON)
 
 $(MODEL_MAKEFILES): template.mk
-	$(BUILD_MODEL_MAKEFILE) $< $(MAKE_DIR) $(dir $@)
+	$(BUILD_MODEL_MAKEFILE) $< $(dir $@) > $@
 
 $(MODEL_GITIGNORES):
 	echo "Makefile" > $@

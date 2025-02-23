@@ -33,57 +33,54 @@ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 SUCH DAMAGE.
 """
 
-import os
 from pathlib import Path
 import sys
 from typing import Final
 
 
-REPLACE_STR: Final[str] = '@MAKE_DIR@'
-MAKEFILE_FILENAME: Final[Path] = Path('Makefile')
-
-
-def relative_to_walk_up(start: Path, target: Path) -> Path:
-    """Relative to with walk up."""
-    # Python 3.12
-    # return target.relative_to(start, walk_up=True)
-
-    # Python 3.9
-    walk_up = Path('.')
-    while len(walk_up.parts) < 64:
-        try:
-            r = target.resolve().relative_to((start / walk_up).resolve())
-        except ValueError as e:
-            walk_up = walk_up / '..'
-            continue
-        return walk_up / r
-    raise ValueError('Exceed limit')
+REPLACE_DIR_STR: Final[str] = '@MODELS_SRC_DIR_FROM_MODEL_DIR@'
+REPLACE_NAME_STR: Final[str] = '@MODEL_NAME@'
 
 
 def main() -> None:
     """Do main."""
-    if len(sys.argv) != 4:
+    if len(sys.argv) != 3:
         print('Usage: ./build_model_makefile.py '
-              '(in)TEMPLATE.mk MAKE_DIR MODEL_DIR')
+              '(in)TEMPLATE.mk MODEL_NAME > Makefile',
+              file=sys.stderr)
         sys.exit(1)
 
+    # モデルディレクトリに格納するMakefileのテンプレートファイル
     template_filename = Path(sys.argv[1])
-    make_dir = Path(sys.argv[2]).resolve()
-    makefile_dir = Path(sys.argv[3]).resolve()
+    # モデル名：モデルソースディレクトリからモデルディレクトリへの相対パス
+    model_name = Path(sys.argv[2])
 
-    makefile_path = makefile_dir / MAKEFILE_FILENAME
+    if model_name.is_absolute():
+        # モデル名に絶対パスは不可、相対パスのみ可
+        print('Error: MODEL_NAME is absolute path.',
+              file=sys.stderr)
+        sys.exit(2)
 
-    # Python 3.12
-    # relative = make_dir.relative_to(makefile_dir, walk_up=True)
+    # モデルディレクトリからモデルソースファイルディレクトリへの
+    # 相対パス（つまりmodel_nameの逆）を作る
+    models_src_dir_from_model_dir: Path = Path('.')
+    for rp in reversed(model_name.parts):
+        if rp == '..':
+            # モデル名の相対パスは `..` による親ディレクトリへの移動不可
+            print('Error: MODEL_NAME has `..`.')
+            sys.exit(2)
+        if rp == '.':
+            # モデル名の相対パスは `.` による自ディレクトリへの移動不可
+            print('Error: MODEL_NAME has `.`.')
+            sys.exit(2)
+        models_src_dir_from_model_dir /= Path('..')
 
-    # Python 3.9
-    relative = relative_to_walk_up(makefile_dir, make_dir)
-
-    with open(template_filename, 'r') as fin:
-        with open(makefile_path, 'w') as fout:
-            for line in fin:
-                print(line.replace(REPLACE_STR, str(relative)),
-                      end='', file=fout)
+    with open(template_filename, 'r') as f:
+        for line in f:
+            print(line.
+                  replace(REPLACE_NAME_STR, str(model_name)).
+                  replace(REPLACE_DIR_STR, str(models_src_dir_from_model_dir)),
+                  end='')
 
 
 if __name__ == '__main__':

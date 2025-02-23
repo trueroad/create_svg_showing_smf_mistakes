@@ -5,9 +5,6 @@ MAKE_DIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 include $(MAKE_DIR)/common-dirs.mk
 include $(MAKE_DIR)/common-tools.mk
 
-# モデル名（モデルソースディレクトリ中のディレクトリ名）
-MODEL_NAME = $(shell $(REALPATH_RELATIVE_TO) $(MODELS_SRC_DIR) $(MODEL_DIR))
-
 # モデル設定ファイル名
 MODEL_CONFIG = config.toml
 

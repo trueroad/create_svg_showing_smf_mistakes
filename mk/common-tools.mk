@@ -12,7 +12,6 @@ RMDIR = rmdir
 RMDIR_P = rmdir -p
 INSTALL = install
 INSTALL_DATA = $(INSTALL) -m 644
-REALPATH_RELATIVE_TO = realpath --relative-to
 FIND = find
 TAR = tar
 TAR_CVA_F = $(TAR) -cva -f
