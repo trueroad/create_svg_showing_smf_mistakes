@@ -34,38 +34,41 @@ SUCH DAMAGE.
 """
 
 import json
-import os
 from pathlib import Path
 import sys
+from typing import Final
 
 # https://gist.github.com/trueroad/b0d051af003c61aafb3eac0c051e5f89
 import config_file
 
 
+CONFIG_FILENAME: Final[str] = 'config.toml'
+
+
 def main() -> None:
     """Do main."""
-    if len(sys.argv) != 3:
-        print('Usage: ./build_models_json.py MODELS_DIR (out)MODELS.json')
+    if len(sys.argv) < 3:
+        print('Usage: ./build_models_json.py MODELS_DIR '
+              'MODEL_NAME ... > models.json',
+              file=sys.stderr)
         sys.exit(1)
 
     models_dir = Path(sys.argv[1]).resolve()
-    json_filename = Path(sys.argv[2])
-
     phrase_list: list[dict[str, str]] = []
 
-    for p in models_dir.glob('**/config.toml'):
-        r = p.parent.relative_to(models_dir)
+    for i in range(2, len(sys.argv)):
+        model_name = Path(sys.argv[i])
+
         cf = config_file.config_file()
-        cf.load_config_file(p)
+        cf.load_config_file(models_dir / model_name / CONFIG_FILENAME)
 
         phrase: dict[str, str] = {}
-        phrase['name'] = str(r)
+        phrase['name'] = str(model_name)
         phrase['title'] = cf.get_value_str('title')
         phrase_list.append(phrase)
 
-    with open(json_filename, 'w') as f:
-        json.dump({'phrase_list': phrase_list}, f, ensure_ascii=False,
-                  indent=2)
+    print(json.dumps({'phrase_list': phrase_list},
+                     ensure_ascii=False, indent=2), end='')
 
 
 if __name__ == '__main__':
