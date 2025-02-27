@@ -160,5 +160,16 @@ def diffsvg() -> Union[Response, tuple[Response, int]]:
     return make_response('Failed to create diff.'), 500
 
 
+@app.route('/')
+def top_page() -> str:
+    """
+    トップページ.
+
+    Returns:
+      str: トップページのコンテンツ
+    """
+    return render_template('index.html')
+
+
 if __name__ == '__main__':
     app.run(debug=True)
