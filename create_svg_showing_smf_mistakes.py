@@ -464,6 +464,7 @@ class mistakes:
         surface: cairo.SVGSurface
         with cairo.SVGSurface(fobj, self.tnr.svg_width, self.tnr.svg_height
                               ) as surface:
+            surface.set_document_unit(cairo.SVGUnit.PT)
             self.context = cairo.Context(surface)
 
             # 画面クリア用マジックコマンド識別
