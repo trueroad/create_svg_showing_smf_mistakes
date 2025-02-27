@@ -83,8 +83,9 @@ def diffsvg() -> Union[Response, tuple[Response, int]]:
     Returns:
       Union[Response, tuple[Response, int]]: 間違い差分コンテンツ
     """
-    # 現在日時を取得、現在のタイムゾーンを得る方法が無い？のでUTC固定
-    dt: Final[datetime.datetime] = datetime.datetime.now(datetime.timezone.utc)
+    # 現在日時を取得、システムのローカルなタイムゾーン
+    dt: Final[datetime.datetime] = \
+        datetime.datetime.now(datetime.timezone.utc).astimezone(tz=None)
     iso8601now: Final[str] = iso8601_basic(dt, timespec='microseconds')
 
     # POSTリクエストボディをファイルに書き込む（デバッグ用）
