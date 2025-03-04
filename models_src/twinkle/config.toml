@@ -5,6 +5,7 @@ smf = "model.mid"
 list = "model.list.txt"
 
 [text]
+font_face = "HaranoAjiGothic-Regular"
 missing = "" # 空文字列はバツ印
 extra = "余計" # 空文字列は文字なし
 far_behind = "遅れすぎ"

@@ -27,6 +27,7 @@ max_tempo_ratio = 1.2
 min_tempo_ratio = 0.8
 
 [text]
+font_face = "HaranoAjiGothic-Regular"
 missing = "弾く"
 extra = "弾かない"
 far_behind = "早く"
