@@ -13,7 +13,7 @@ RMDIR_P = rmdir -p
 INSTALL = install
 INSTALL_DATA = $(INSTALL) -m 644
 FIND = find
-TAR = tar
+TAR = gtar
 TAR_CVA_F = $(TAR) -cva -f
 TIMIDITY_48K_MONO = timidity \
 	--volume-compensation \
